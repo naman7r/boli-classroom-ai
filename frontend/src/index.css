@@ -1792,8 +1792,8 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 2.5rem 2.75rem;
-  background: var(--card);
-  color: #1a202c;
+  background: #ffffff !important;
+  color: #0f172a !important;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   line-height: 1.55;
 }
@@ -2065,7 +2065,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: var(--card);
+  background: #ffffff !important;
   border: 1px solid #86efac;
   padding: 0.3rem 0.7rem;
   border-radius: 8px;
@@ -2103,9 +2103,9 @@ body {
 }
 
 .ws-lang-card {
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #cbd5e1 !important;
   border-radius: 12px;
-  background: var(--card);
+  background: #ffffff !important;
   padding: 1rem 1.15rem;
   display: flex;
   flex-direction: column;
@@ -2267,6 +2267,120 @@ body {
   color: #0f172a;
 }
 
+/* Printable Worksheet Paper Guarantees (Theme Independent) */
+.worksheet-modal-dialog {
+  background: #18201C !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7) !important;
+}
+
+.worksheet-modal-toolbar {
+  background: #131916 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.worksheet-modal-toolbar .toolbar-title {
+  color: #F3F6F4 !important;
+}
+
+.worksheet-modal-toolbar .toolbar-sub {
+  color: #9AA8A0 !important;
+}
+
+.worksheet-document,
+body:not(.light-theme-override) .worksheet-document {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.worksheet-document .ws-lang-card,
+body:not(.light-theme-override) .worksheet-document .ws-lang-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.worksheet-document .ws-lang-sat,
+body:not(.light-theme-override) .worksheet-document .ws-lang-sat {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+.worksheet-document .ws-card--hindi,
+body:not(.light-theme-override) .worksheet-document .ws-card--hindi {
+  background: #fdfaf6 !important;
+  border-color: #eeddc8 !important;
+}
+
+.worksheet-document .ws-card--simplified,
+body:not(.light-theme-override) .worksheet-document .ws-card--simplified {
+  background: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+}
+
+.worksheet-document .ws-practice-card,
+body:not(.light-theme-override) .worksheet-document .ws-practice-card {
+  background: #fdfaf6 !important;
+  border-color: #005231 !important;
+}
+
+.worksheet-document .ws-student-bar,
+body:not(.light-theme-override) .worksheet-document .ws-student-bar {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.worksheet-document .ws-nipun-code-bar,
+body:not(.light-theme-override) .worksheet-document .ws-nipun-code-bar {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.worksheet-document .ws-nipun-tag,
+body:not(.light-theme-override) .worksheet-document .ws-nipun-tag {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.worksheet-document .ws-qr-panel,
+body:not(.light-theme-override) .worksheet-document .ws-qr-panel {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+}
+
+.worksheet-document .ws-sub-chip,
+body:not(.light-theme-override) .worksheet-document .ws-sub-chip {
+  background: #ffffff !important;
+  border-color: #86efac !important;
+  color: #14532d !important;
+}
+
+.worksheet-document .ws-translated-text,
+body:not(.light-theme-override) .worksheet-document .ws-translated-text {
+  color: #1e293b !important;
+}
+
+.worksheet-document .ws-sentence-text,
+body:not(.light-theme-override) .worksheet-document .ws-sentence-text {
+  color: #1e293b !important;
+}
+
+.worksheet-document .ws-hindi-original-text,
+body:not(.light-theme-override) .worksheet-document .ws-hindi-original-text {
+  color: #2d3748 !important;
+}
+
+.worksheet-document .ws-match-item,
+body:not(.light-theme-override) .worksheet-document .ws-match-item {
+  color: #1e293b !important;
+}
+
+.worksheet-document .ws-fln-row,
+body:not(.light-theme-override) .worksheet-document .ws-fln-row {
+  color: #1e293b !important;
+}
+
 /* ==========================================================================
    Physical Print Styling (@media print)
    ========================================================================== */
@@ -2278,7 +2392,7 @@ body {
   }
 
   body {
-    background: var(--card) !important;
+    background: #ffffff !important;
     background-image: none !important;
     color: #000000 !important;
   }
@@ -4437,7 +4551,7 @@ body.high-contrast-mode .step-card {
 }
 
 .ws-practice-card {
-  background: var(--card);
+  background: #fdfaf6 !important;
   border: 1.5px dashed #005231;
   border-radius: 12px;
   padding: 1.2rem;
@@ -4455,7 +4569,7 @@ body.high-contrast-mode .step-card {
 
 .ws-practice-hint {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #475569 !important;
   margin-bottom: 0.8rem;
 }
 
@@ -4466,7 +4580,7 @@ body.high-contrast-mode .step-card {
   font-size: 0.85rem;
   line-height: 2;
   font-weight: 600;
-  color: var(--text);
+  color: #1e293b !important;
 }
 
 .ws-match-col {
@@ -4487,7 +4601,7 @@ body.high-contrast-mode .step-card {
   flex-direction: column;
   gap: 0.5rem;
   font-size: 0.8rem;
-  color: var(--text);
+  color: #1e293b !important;
 }
 
 .ws-fln-row {
@@ -4515,7 +4629,7 @@ body.high-contrast-mode .step-card {
 @media print {
   .ws-practice-card {
     border: 1.5px dashed #000000 !important;
-    background: var(--card) !important;
+    background: #ffffff !important;
   }
 }
 
@@ -6027,11 +6141,11 @@ body.high-contrast-mode .step-card {
 
 .ws-nipun-tag {
   font-size: 0.74rem;
-  background: var(--card);
+  background: #ffffff !important;
   border: 1px solid #cbd5e1;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  color: #334155;
+  color: #334155 !important;
 }
 
 .ws-nipun-tag strong {

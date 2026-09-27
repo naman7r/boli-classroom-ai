@@ -270,12 +270,21 @@ def deva_to_odia(text: str, target_lang: str = "hoc") -> str:
     return odia_str
 
 
+_TTS_AUDIO_CACHE: dict[tuple[str, str, str], bytes] = {}
+_MAX_CACHE_SIZE = 512
+
+
 def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
     """Return wav bytes. Raises ValueError on an unsupported or unspeakable input."""
     if lang not in MODELS:
         raise ValueError(
             f"No TTS checkpoint exists for '{lang}'. Available: {', '.join(MODELS)}."
         )
+
+    # In-memory fast audio cache lookup (instant response for repeat playback & soundboard)
+    cache_key = (lang, text.strip(), speaker_desc or "")
+    if cache_key in _TTS_AUDIO_CACHE:
+        return _TTS_AUDIO_CACHE[cache_key]
 
     if lang == "sat":
         model, prompt_tok, desc_tok = _load_parler_tts()
@@ -288,10 +297,23 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
         description = speaker_desc or DEFAULT_SANTALI_SPEAKER
         desc_inputs = desc_tok(description, return_tensors="pt")
 
-        with torch.no_grad():
+        # Dynamic max_new_tokens calculation:
+        # Parler-TTS generates ~43 DAC tokens per second of 44.1kHz audio.
+        # Santali Ol Chiki reading rate is ~1.5 - 2 words per second.
+        # Unbounded generation runs for 2,580 tokens (~60s CPU timeout).
+        # We scale tokens to input length with safety margin and floor.
+        words = len(text.strip().split())
+        calc_tokens = max(90, min(int(words * 18) + 85, 340))
+
+        with torch.inference_mode():
             generation = model.generate(
                 input_ids=desc_inputs.input_ids,
+                attention_mask=desc_inputs.attention_mask,
                 prompt_input_ids=prompt_inputs.input_ids,
+                prompt_attention_mask=prompt_inputs.attention_mask,
+                max_new_tokens=calc_tokens,
+                do_sample=True,
+                temperature=0.7,
             )
 
         audio_arr = generation.cpu().numpy().squeeze()
@@ -306,7 +328,11 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
         scipy.io.wavfile.write(
             buf, rate=model.config.sampling_rate, data=audio_int16
         )
-        return buf.getvalue()
+        wav_bytes = buf.getvalue()
+        if len(_TTS_AUDIO_CACHE) >= _MAX_CACHE_SIZE:
+            _TTS_AUDIO_CACHE.pop(next(iter(_TTS_AUDIO_CACHE)))
+        _TTS_AUDIO_CACHE[cache_key] = wav_bytes
+        return wav_bytes
 
     # Preprocess Devanagari to Odia script for Ho and Mundari MMS models
     target_text = text
@@ -323,7 +349,7 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
             "voice was trained on, so there is nothing to speak."
         )
 
-    with torch.no_grad():
+    with torch.inference_mode():
         waveform = model(**inputs).waveform.cpu().float().numpy().squeeze()
 
     # Apply audio enhancement pipeline: filtering, warmth EQ, compression, anti-aliased 24kHz upsampling
@@ -331,4 +357,8 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
 
     buf = io.BytesIO()
     scipy.io.wavfile.write(buf, rate=out_sr, data=audio_int16)
-    return buf.getvalue()
+    wav_bytes = buf.getvalue()
+    if len(_TTS_AUDIO_CACHE) >= _MAX_CACHE_SIZE:
+        _TTS_AUDIO_CACHE.pop(next(iter(_TTS_AUDIO_CACHE)))
+    _TTS_AUDIO_CACHE[cache_key] = wav_bytes
+    return wav_bytes
