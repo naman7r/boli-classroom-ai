@@ -198,6 +198,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
             className="top-utility-pill"
             onClick={() => setShowTabletModal(true)}
             title="Inspect 2GB Tablet RAM Footprint & Zero-Connectivity Offline Mode"
+            aria-label="Inspect 2GB Tablet RAM Footprint and Offline Mode"
           >
             <span className="material-symbols-outlined text-xs">tablet_mac</span>
             <span>Tablet & Offline (2GB)</span>
@@ -208,9 +209,10 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
             type="button"
             className="top-utility-pill"
             onClick={() => setShowGovernanceModal(true)}
-            title="Inspect 5-District JCERT Pilot & DIET Review Protocol"
+            title="Inspect Proposed 5-District JCERT Pilot & DIET Review Protocol"
+            aria-label="Inspect Proposed 5-District JCERT Pilot & DIET Review Protocol"
           >
-            <span className="material-symbols-outlined text-xs">verified</span>
+            <span className="material-symbols-outlined text-xs">account_balance</span>
             <span>State Pilot & DIET</span>
           </button>
 
@@ -224,6 +226,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
               setShowBackendModal(true);
             }}
             title="Configure Backend API Connection"
+            aria-label={`Backend connection status: ${backendStatus}. Click to configure.`}
           >
             <span
               className={`status-dot ${
@@ -318,7 +321,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                   marginBottom: "14px",
                   fontSize: "13px",
                   background: testResult.success ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
-                  color: testResult.success ? "#4ade80" : "#f87171",
+                  color: testResult.success ? "#22c55e" : "#f87171",
                   border: `1px solid ${testResult.success ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)"}`,
                 }}
               >
@@ -443,7 +446,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                   padding: "3px 8px",
                   borderRadius: "999px",
                   background: "rgba(34,197,94,0.2)",
-                  color: "#4ade80",
+                  color: "#22c55e",
                   border: "1px solid rgba(34,197,94,0.4)",
                   fontWeight: "600",
                 }}
@@ -583,7 +586,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                 </span>
               </button>
               {offlineDownloadStatus === "downloaded" && (
-                <span style={{ marginLeft: "10px", fontSize: "11px", color: "#4ade80", fontWeight: "600" }}>
+                <span style={{ marginLeft: "10px", fontSize: "11px", color: "#22c55e", fontWeight: "600" }}>
                   ✓ Saved to device storage!
                 </span>
               )}
@@ -701,7 +704,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
               {/* Step 2: 3 Core Deliverables */}
               <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #22c55e" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                  <span className="material-symbols-outlined text-sm" style={{ color: "#4ade80" }}>verified</span>
+                  <span className="material-symbols-outlined text-sm" style={{ color: "var(--text-muted, #574e45)" }}>info</span>
                   <strong style={{ fontSize: "14px", color: "#86efac" }}>2. कक्षा शिक्षण के 3 प्रमुख साधन (Core Deliverables)</strong>
                 </div>
                 <ul style={{ margin: "4px 0 0", paddingLeft: "18px", fontSize: "12px", color: "#d4d4d8", lineHeight: 1.6 }}>
@@ -850,6 +853,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <span className="material-symbols-outlined text-sm" style={{ color: "#38bdf8" }}>domain</span>
+                    <p style={{ color: '#f59e0b', fontWeight: 700, marginBottom: '12px' }}>⚠️ Proposed Deployment Blueprint (Not Yet Active)</p>
                     <strong style={{ fontSize: "14px", color: "#e0f2fe" }}>1. चरण-1 पायलट कार्यक्षेत्र (5-District Pilot Matrix · 1,885 Primary Schools)</strong>
                   </div>
                   <span style={{ fontSize: "11px", fontWeight: "700", color: "#38bdf8", background: "rgba(56,189,248,0.12)", padding: "2px 8px", borderRadius: "4px" }}>
@@ -888,7 +892,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
               {/* Section 2: 3-Tier Dialect Moderation Workflow */}
               <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #22c55e" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                  <span className="material-symbols-outlined text-sm" style={{ color: "#4ade80" }}>published_with_changes</span>
+                  <span className="material-symbols-outlined text-sm" style={{ color: "#22c55e" }}>published_with_changes</span>
                   <strong style={{ fontSize: "14px", color: "#86efac" }}>2. त्रि-स्तरीय भाषा समीक्षा व संशोधन तंत्र (DIET Moderation Pipeline)</strong>
                 </div>
                 <div style={{ display: "grid", gap: "8px", fontSize: "12px", color: "#d4d4d8", lineHeight: 1.5 }}>

@@ -13,7 +13,7 @@ export default function GlobalFooter() {
           </span>
           <span className="footer-divider-dot" aria-hidden="true">•</span>
           <span className="footer-engine-tag">
-            Offline-First Transitional Bilingual Engine for Primary Schools
+            Transitional Bilingual Education Tool for Primary Schools
           </span>
         </div>
 

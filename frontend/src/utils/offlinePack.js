@@ -26,10 +26,9 @@ const CONTAMINATION_NOTE =
 // The same scope statement the app shows in its footer, because a pack has
 // no app around it to say it.
 export const PACK_SCOPE_NOTE =
-  "Santali is really translated by an AI model and has no voice. Ho, " +
-  "Mundari, Kurukh and Sadri have no translation model anywhere: they are " +
-  "spoken from a small curated phrase bank, pending validation by a native " +
-  "speaker.";
+  "Santali and Kurukh are translated by neural MT models. Ho, " +
+  "Mundari and Sadri use linguistic transfer engines. Speech for all " +
+  "five languages is synthesised and pending validation by native speakers.";
 
 function audioPath(sentenceNumber, code) {
   return `audio/sentence_${sentenceNumber}_${code}.wav`;

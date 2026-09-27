@@ -120,14 +120,14 @@ export default function App() {
     <>
       <ForestBackground />
       <div className="app-shell">
-        {/* Top Government-Grade Utility Bar (Accessibility & SIH Identification) */}
+        {/* Top Utility Bar (Accessibility & Navigation) */}
         <TopUtilityBar activeLang={activeLang} onToggleLang={setActiveLang} />
 
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
 
-      {/* Main Government Portal Header */}
+      {/* Main Header */}
       <header className="app-header-bar sun-card-shadow">
         <div className="header-brand">
           <Logo size="small" showTagline={true} />
@@ -197,6 +197,7 @@ export default function App() {
               className="header-util-btn"
               onClick={playSpeakerChime}
               title="Classroom Speaker Test (Plays chime on classroom bluetooth or wired audio)"
+              aria-label="Classroom Speaker Test — Play test chime"
             >
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>volume_up</span>
               <span className="util-btn-text">Speaker Test</span>
@@ -211,14 +212,11 @@ export default function App() {
                 go(0);
               }}
               title="Start New Lesson (Resets input and returns to Step 1)"
+              aria-label="Start New Lesson — Reset input and return to Step 1"
             >
               <span className="material-symbols-outlined text-sm">restart_alt</span>
               <span className="util-btn-text">New Lesson</span>
             </button>
-          </div>
-          <div className="sih-initiative-badge">
-            <span className="initiative-dot" />
-            <span>PALASH MTB-MLE</span>
           </div>
         </div>
       </header>
@@ -282,7 +280,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Government-Grade Footer with SIH Prototype Disclaimers */}
+      {/* Footer */}
       <GlobalFooter />
     </div>
     </>

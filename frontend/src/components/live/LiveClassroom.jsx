@@ -318,7 +318,7 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
         audioBlob,
         langName: dialectMeta?.name || selectedLang,
         langCode: selectedLang,
-        engine: "1-Tap Verified MTB-MLE Soundboard",
+        engine: "1-Tap MTB-MLE Classroom Soundboard",
         mode: "soundboard_fastpath",
         hint: cmd.hint,
       });
@@ -376,17 +376,17 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
           <div className="feasibility-divider" />
           <div className="feasibility-item">
             <span className="material-symbols-outlined text-blue-600 text-sm">speed</span>
-            <span><strong>Sub-50ms Engine:</strong> Lightweight Transfer · Zero Cloud GPU Dependency</span>
+            <span><strong>Sub-50ms Engine:</strong> Lightweight Transfer · CPU-Ready for Ho, Mundari & Sadri</span>
           </div>
           <div className="feasibility-divider" />
           <div className="feasibility-item">
             <span className="material-symbols-outlined text-amber-600 text-sm">tablet_mac</span>
-            <span><strong>Hardware Verified:</strong> Low Memory Footprint (&lt;150MB RAM) on 2GB Tablets</span>
+            <span><strong>Tested on:</strong> Low Memory Footprint (&lt;150MB RAM) on 2GB Tablets</span>
           </div>
           <div className="feasibility-divider" />
           <div className="feasibility-item">
             <span className="material-symbols-outlined text-green-700 text-sm">record_voice_over</span>
-            <span><strong>Phonetic Protocol:</strong> DIET L1 Native Speaker Audio Audited</span>
+            <span><strong>Phonetic Protocol:</strong> Meta MMS Speech Synthesis</span>
           </div>
         </div>
       </div>
@@ -406,7 +406,7 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
           <div className="soundboard-active-lang" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
             <span className="verified-voice-badge">
               <span className="material-symbols-outlined text-xs">verified</span>
-              DIET L1 Native Phonetics Audited
+              Meta MMS Speech Synthesis
             </span>
             <div style={{ fontSize: "12px", color: "#6b7280" }}>
               <span>Selected Dialect: </span>

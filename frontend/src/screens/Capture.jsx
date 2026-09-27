@@ -2,8 +2,6 @@ import { useRef, useState } from "react";
 import { ocr, extractChapter, transcribeAudio } from "../api";
 import ContrastDemo from "../components/ContrastDemo";
 import TextLoop from "../components/motion/TextLoop";
-import Spotlight from "../components/motion/Spotlight";
-import Tilt from "../components/motion/Tilt";
 import BoliMascot from "../components/BoliMascot";
 
 export default function Capture({
@@ -411,6 +409,7 @@ export default function Capture({
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={transcribing || reading}
                   title="Click to speak Hindi lesson aloud"
+                  aria-label={isRecording ? "Stop recording teacher audio" : "Start teacher audio dictation"}
                 >
                   <span
                     className="material-symbols-outlined text-2xl"

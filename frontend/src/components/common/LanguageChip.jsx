@@ -53,7 +53,7 @@ export default function LanguageChip({ language, selected, onToggle }) {
               className="material-symbols-outlined"
               style={{ fontSize: "13px" }}
             >
-              {isAi ? "verified" : "record_voice_over"}
+              {isAi ? "translate" : "record_voice_over"}
             </span>
             <span>{capabilityBadge(language)}</span>
           </span>

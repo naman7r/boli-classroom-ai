@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect, useRef } from "react";
-import { speak, extractChapter, translate } from "../../api";
+import { useState, useMemo, useRef } from "react";
+import { speak, extractChapter } from "../../api";
 
 // Sound effects using Web Audio API (zero external audio asset dependencies)
 function playQuizChime(isCorrect) {
@@ -1801,7 +1801,7 @@ export default function QuizLab({ lessonText, currentGrade = 2 }) {
           </div>
         </div>
       ) : (
-        /* Result & NIPUN Bharat Certificate Card */
+        /* Result & Practice Achievement Card */
         <div className="quiz-result-card panel sun-card-shadow">
           <div className="result-badge-icon">
             <span className="material-symbols-outlined text-5xl" style={{ color: "#E65100" }}>
@@ -1810,7 +1810,7 @@ export default function QuizLab({ lessonText, currentGrade = 2 }) {
           </div>
 
           <div className="section-eyebrow">
-            <span className="eyebrow-tag">NIPUN BHARAT FLN CERTIFICATE</span>
+            <span className="eyebrow-tag">Practice Achievement Card</span>
             <span>
               {quizMode === "chapter_pdf"
                 ? `पाठ्यपुस्तक परख: ${chapterFile}`

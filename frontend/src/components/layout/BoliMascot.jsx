@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const GREETINGS = [
   "जोहार बच्चों! (Johar!) आओ अपनी मातृभाषा में सीखें!",
@@ -12,14 +12,7 @@ export default function BoliMascot({ currentGrade = 2 }) {
   const [greetingIndex, setGreetingIndex] = useState(0);
   const [isWaving, setIsWaving] = useState(false);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setGreetingIndex((prev) => (prev + 1) % GREETINGS.length);
-      setIsWaving(true);
-      setTimeout(() => setIsWaving(false), 1200);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+  // Greetings cycle on click only — no auto-cycling timer
 
   const handleClick = () => {
     setGreetingIndex((prev) => (prev + 1) % GREETINGS.length);

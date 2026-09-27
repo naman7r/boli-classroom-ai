@@ -18,14 +18,14 @@ export default function HowItWorksSection() {
       num: "03",
       title: "Neural Translation & Script Mapping",
       hindiTitle: "न्यूरल अनुवाद व लिपि मैपिंग",
-      desc: "Santali is translated using AI4Bharat IndicTrans2 into Ol Chiki script. Regional tribal dialects (Ho, Mundari, Kurukh, Sadri) are routed to verified phonetic phrase banks.",
+      desc: "Santali and Kurukh use neural translation models. Ho, Mundari and Sadri use linguistic transfer engines with 300+ grammar rules each.",
       icon: "translate",
     },
     {
       num: "04",
       title: "Spoken Audio & Offline Sync",
       hindiTitle: "मातृभाषा में ध्वनि उच्चारण",
-      desc: "High-clarity audio is generated with village-accurate phonetics. Lessons and circulars can be downloaded as offline zip bundles for schools without internet.",
+      desc: "High-clarity audio is generated with synthesized speech audio. Lessons and circulars can be downloaded as offline zip bundles for schools without internet.",
       icon: "volume_up",
     },
   ];
@@ -85,7 +85,7 @@ export default function HowItWorksSection() {
       <div className="tech-architecture-container" id="technology-section">
         <div className="tech-header-row">
           <div>
-            <span className="tech-badge">TECHNICAL INTEGRITY · FLN VERIFIED</span>
+            <span className="tech-badge">TECHNICAL INTEGRITY</span>
             <h3 className="tech-heading">Built for Accessible Multilingual Public Services</h3>
           </div>
           <p className="tech-intro">
