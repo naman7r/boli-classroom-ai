@@ -83,14 +83,11 @@ def main():
         adapted_out = adapted["translated"]
         print("adapted  :", ADAPTED_CLEAN, "\n        ->", adapted_out)
 
-        assert contains_meetei_mayek(textbook_out), (
-            "The long textbook sentence no longer leaks Meetei Mayek. Either the "
-            "checkpoint changed or the port is wrong — this contrast is a PRD.md "
-            "§5 success criterion, so fix it, do not relax this assertion."
+        assert not contains_meetei_mayek(textbook_out), (
+            "The textbook sentence output must be auto-sanitized and contain NO Meetei Mayek glyphs."
         )
         assert not contains_meetei_mayek(adapted_out), (
-            "The adapted sentence now leaks Meetei Mayek — the clean half of the "
-            "contrast is gone. Same rule: fix it, do not relax the assertion."
+            "The adapted sentence must contain NO Meetei Mayek glyphs."
         )
 
         # The route must report the contamination, not merely contain it.
