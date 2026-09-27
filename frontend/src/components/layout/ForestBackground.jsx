@@ -8,11 +8,6 @@ export default function ForestBackground() {
 
       {/* Atmospheric Mist & Fog Overlay */}
       <div className="forest-mist-overlay" />
-
-      {/* Soft Sunlight Caustics & Canopy Rays */}
-      <div className="forest-light-rays" />
-
-
     </div>
   );
 }
