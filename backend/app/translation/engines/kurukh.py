@@ -66,7 +66,7 @@ class KurukhEngine(BaseTranslationEngine):
             out = model.generate(
                 **inputs,
                 max_length=128,
-                num_beams=5,
+                num_beams=2,
                 repetition_penalty=2.0,
                 no_repeat_ngram_size=2,
                 early_stopping=True,

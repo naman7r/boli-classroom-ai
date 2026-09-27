@@ -34,12 +34,22 @@ FLORES_MAP = {
 }
 
 
+def _get_device() -> torch.device:
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    return torch.device("cpu")
+
+
 @lru_cache(maxsize=1)
 def _load_model():
     if not os.getenv("HF_TOKEN"):
         raise RuntimeError("HF_TOKEN is not set. IndicTrans2 requires HF_TOKEN.")
     tok = AutoTokenizer.from_pretrained(CKPT, trust_remote_code=True)
-    model = AutoModelForSeq2SeqLM.from_pretrained(CKPT, trust_remote_code=True)
+    device = _get_device()
+    model = AutoModelForSeq2SeqLM.from_pretrained(CKPT, trust_remote_code=True).to(device)
+    model.eval()
     ip = IndicProcessor(inference=True)
     return tok, model, ip
 
@@ -71,10 +81,11 @@ class IndicTransEngine(BaseTranslationEngine):
             raise ValueError(f"Unsupported pair: {source} -> {target}")
 
         tok, model, ip = _load_model()
+        device = _get_device()
         batch = ip.preprocess_batch(sentences, src_lang=src_flores, tgt_lang=tgt_flores)
-        enc = tok(batch, truncation=True, padding="longest", return_tensors="pt")
+        enc = tok(batch, truncation=True, padding="longest", return_tensors="pt").to(device)
         with torch.no_grad():
-            out = model.generate(**enc, max_length=256, num_beams=5, early_stopping=True)
+            out = model.generate(**enc, max_length=128, num_beams=2, early_stopping=True)
         decoded = tok.batch_decode(out, skip_special_tokens=True)
         translated = ip.postprocess_batch(decoded, lang=tgt_flores)
         return translated

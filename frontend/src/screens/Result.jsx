@@ -111,6 +111,10 @@ export default function Result({
                 !speaksWithoutPedagogy(language) &&
                 res.translated
               ) {
+                setAudio((prev) => ({
+                  ...prev,
+                  [language.code]: { kind: "loading" },
+                }));
                 speak(res.translated, language.code)
                   .then((audioRes) => {
                     if (!cancelled) {
@@ -138,6 +142,10 @@ export default function Result({
 
           // Concurrently speak phrase-bank languages
           for (const language of picked.filter(speaksWithoutPedagogy)) {
+            setAudio((prev) => ({
+              ...prev,
+              [language.code]: { kind: "loading" },
+            }));
             speak(currentText, language.code)
               .then((audioRes) => {
                 if (!cancelled) {
@@ -445,7 +453,7 @@ export default function Result({
   }
 
   return (
-    <section aria-labelledby="result-heading">
+    <section aria-labelledby="result-heading" className="result-screen">
       <div className="section-eyebrow">
         <span className="eyebrow-tag">STEP 03</span>
         <span>LESSON AUDIO & SYNTHESIS</span>
@@ -816,6 +824,27 @@ export default function Result({
                   </p>
                 )}
 
+                {mine.length === 0 && !isBank && !simplifyError && (
+                  <div
+                    className="hero-script-display"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "1rem 1.25rem",
+                      color: "var(--text-muted)",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    <span
+                      className="spinner"
+                      aria-hidden="true"
+                      style={{ width: "16px", height: "16px", margin: 0, flexShrink: 0 }}
+                    />
+                    <span>अनुवाद किया जा रहा है (Translating into {language.name}…)</span>
+                  </div>
+                )}
+
                 {mine.length > 0 && (
                   <>
                     <div className="hero-script-display">
@@ -839,6 +868,45 @@ export default function Result({
                   <p className="note">
                     {language.note ?? "There is no voice for this language."} This is text only.
                   </p>
+                )}
+
+                {spoken?.kind === "loading" && (
+                  <div
+                    style={{
+                      marginTop: "0.75rem",
+                      padding: "0.6rem 0.85rem",
+                      background: "rgba(0, 0, 0, 0.2)",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px dashed var(--line)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      color: "var(--text-muted)",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    <span
+                      className="spinner"
+                      aria-hidden="true"
+                      style={{ width: "14px", height: "14px", margin: 0, flexShrink: 0 }}
+                    />
+                    <span>कक्षा उच्चारण तैयार हो रहा है (Synthesizing {language.name} classroom voice…)</span>
+                  </div>
+                )}
+
+                {spoken?.kind === "error" && (
+                  <div
+                    style={{
+                      marginTop: "0.5rem",
+                      padding: "0.4rem 0.6rem",
+                      background: "rgba(239, 68, 68, 0.08)",
+                      borderRadius: "var(--radius-sm)",
+                      color: "var(--error)",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    <span>Speech synthesis error: {spoken.error}</span>
+                  </div>
                 )}
 
                 {spoken?.kind === "audio" && (
@@ -918,6 +986,7 @@ export default function Result({
         hindiText={hindiText}
         adapted={adapted}
         translations={translations}
+        chapterResults={chapterResults}
         grade={grade}
         audio={audio}
       />

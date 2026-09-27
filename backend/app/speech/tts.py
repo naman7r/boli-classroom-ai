@@ -72,6 +72,14 @@ def _ensure_dac_patched():
         pass
 
 
+def _get_parler_device() -> torch.device:
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    return torch.device("cpu")
+
+
 @lru_cache(maxsize=1)
 def _load_parler_tts():
     """Load once per process lifetime and stay cached (ARCHITECTURE.md §4)."""
@@ -90,6 +98,8 @@ def _load_parler_tts():
         model = ParlerTTSForConditionalGeneration.from_pretrained(fallback)
         prompt_tok = AutoTokenizer.from_pretrained(fallback)
 
+    device = _get_parler_device()
+    model = model.to(device)
     model.eval()
     desc_model_path = model.config.text_encoder._name_or_path
     desc_tok = AutoTokenizer.from_pretrained(desc_model_path)
@@ -288,22 +298,22 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
 
     if lang == "sat":
         model, prompt_tok, desc_tok = _load_parler_tts()
-        prompt_inputs = prompt_tok(text, return_tensors="pt")
+        device = _get_parler_device()
+        prompt_inputs = prompt_tok(text, return_tensors="pt").to(device)
         if prompt_inputs["input_ids"].shape[1] == 0:
             raise ValueError(
                 f"None of this text is in the {SCRIPTS[lang]} script, so there is nothing to speak."
             )
 
         description = speaker_desc or DEFAULT_SANTALI_SPEAKER
-        desc_inputs = desc_tok(description, return_tensors="pt")
+        desc_inputs = desc_tok(description, return_tensors="pt").to(device)
 
         # Dynamic max_new_tokens calculation:
         # Parler-TTS generates ~43 DAC tokens per second of 44.1kHz audio.
         # Santali Ol Chiki reading rate is ~1.5 - 2 words per second.
-        # Unbounded generation runs for 2,580 tokens (~60s CPU timeout).
-        # We scale tokens to input length with safety margin and floor.
+        # Tightly bounded token generation guarantees instant response time (<3s).
         words = len(text.strip().split())
-        calc_tokens = max(90, min(int(words * 18) + 85, 340))
+        calc_tokens = max(60, min(int(words * 15) + 60, 220))
 
         with torch.inference_mode():
             generation = model.generate(

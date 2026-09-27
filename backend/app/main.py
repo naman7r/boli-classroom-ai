@@ -1,5 +1,8 @@
 """BOLI Personal Backend — FastAPI application entrypoint."""
 
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path

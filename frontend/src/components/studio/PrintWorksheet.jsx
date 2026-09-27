@@ -40,6 +40,7 @@ export default function PrintWorksheet({
   hindiText,
   adapted,
   translations = [],
+  chapterResults = [],
   grade = 2,
   audio = {},
 }) {
@@ -73,7 +74,11 @@ export default function PrintWorksheet({
   const displayLangs = [];
   const seenCodes = new Set();
 
-  for (const t of translations) {
+  const sourceTranslations = translations.length > 0
+    ? translations
+    : (chapterResults || []).flatMap((c) => c.translations || []);
+
+  for (const t of sourceTranslations) {
     if (!t.translated) continue;
     const meta = LANGUAGE_METADATA[t.code] || { name: t.name || t.code, native: "", script: "Devanagari", type: "Translation" };
     displayLangs.push({
@@ -266,25 +271,47 @@ export default function PrintWorksheet({
             </div>
 
             <div className="ws-languages-grid">
-              {displayLangs.map((item, idx) => (
-                <div key={idx} className={`ws-lang-card ws-lang-${item.code}`}>
-                  <div className="ws-lang-header">
-                    <div className="ws-lang-titles">
-                      <span className="ws-lang-name">{item.name}</span>
-                      {item.native && <span className="ws-lang-native">{item.native}</span>}
+              {displayLangs.length > 0 ? (
+                displayLangs.map((item, idx) => (
+                  <div key={idx} className={`ws-lang-card ws-lang-${item.code}`}>
+                    <div className="ws-lang-header">
+                      <div className="ws-lang-titles">
+                        <span className="ws-lang-name">{item.name}</span>
+                        {item.native && <span className="ws-lang-native">{item.native}</span>}
+                      </div>
+                      <div className="ws-lang-tags">
+                        <span className="ws-script-pill">{item.script}</span>
+                        <span className="ws-engine-pill">{item.type}</span>
+                      </div>
                     </div>
-                    <div className="ws-lang-tags">
-                      <span className="ws-script-pill">{item.script}</span>
-                      <span className="ws-engine-pill">{item.type}</span>
+                    <div className="ws-lang-body" lang={item.code}>
+                      <p className={`ws-translated-text ${item.code === "sat" ? "ws-ol-chiki-text" : ""}`}>
+                        {item.text}
+                      </p>
                     </div>
                   </div>
-                  <div className="ws-lang-body" lang={item.code}>
-                    <p className={`ws-translated-text ${item.code === "sat" ? "ws-ol-chiki-text" : ""}`}>
-                      {item.text}
-                    </p>
-                  </div>
+                ))
+              ) : (
+                <div
+                  className="ws-empty-translations"
+                  style={{
+                    padding: "1.25rem",
+                    textAlign: "center",
+                    color: "#475569",
+                    background: "#f8fafc",
+                    borderRadius: "8px",
+                    border: "1px dashed #cbd5e1",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  <p style={{ margin: 0, fontWeight: 600 }}>
+                    मातृभाषा अनुवाद तैयार हो रहा है (Translations are in progress…)
+                  </p>
+                  <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "#64748b" }}>
+                    Please wait a moment for neural MT and linguistic transfer to finish.
+                  </p>
                 </div>
-              ))}
+              )}
             </div>
           </section>
 
