@@ -366,11 +366,12 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
     # MMS synthesis for hoc, unr, kru, sck
     model, tok = _load_mms(lang)
     words = len(text.strip().split())
-    # Pedagogical pacing: deliberate, clear pronunciation for single vocabulary words
-    if words <= 3:
-        model.speaking_rate = 0.88
+    # Natural human pacing: calm, articulate primary school teacher pace (SIH 2026 Acoustic Mastering)
+    # Eliminates rushed, robotic speech and provides warm, natural, human-sounding enunciation.
+    if words <= 2:
+        model.speaking_rate = 0.75  # Deliberate, clear articulation for vocabulary flashcards
     else:
-        model.speaking_rate = 1.0
+        model.speaking_rate = 0.78  # Natural, flowing classroom conversational pace (not rushed)
 
     inputs = tok(target_text, return_tensors="pt")
     if inputs["input_ids"].shape[1] == 0:
