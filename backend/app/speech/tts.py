@@ -41,7 +41,7 @@ SCRIPTS = {
 }
 
 DEFAULT_SANTALI_SPEAKER = (
-    "Arjun's voice is very clear and high quality, spoken at a moderate pace."
+    "Arjun's voice is clear, warm and natural, spoken at a calm, steady pace."
 )
 
 
@@ -118,13 +118,12 @@ def _load_mms(lang: str):
     ckpt = MODELS[lang]
     model = VitsModel.from_pretrained(ckpt)
     # SIH 2026 Acoustic Mastering for Low-Resource Tribal VITS:
-    # 1. Speaking rate 0.78: Deliberate, clear primary school teacher pace (avoids rushed 0.6s chipmunk speech).
-    # 2. Noise scale 0.15: Suppresses random latent variance, eliminating metallic rasp and phase jitter.
-    # 3. Noise scale duration 0.3: Yields natural, stable phoneme durations.
-    # 4. Stochastic duration off: Deterministic duration prediction for crisp syllable boundaries.
-    model.speaking_rate = 0.78
-    model.noise_scale = 0.15
-    model.noise_scale_duration = 0.3
+    # 1. Natural human prosody: noise_scale 0.40 restores vocal warmth and intonation dynamics (eliminating robotic flat pitch).
+    # 2. Stable phoneme rhythm: noise_scale_duration 0.50 provides natural syllable breathing without jitter.
+    # 3. Stochastic duration off: Deterministic duration prediction for crisp syllable boundaries.
+    model.speaking_rate = 1.0
+    model.noise_scale = 0.40
+    model.noise_scale_duration = 0.50
     model.use_stochastic_duration_prediction = False
     model.eval()
     return model, AutoTokenizer.from_pretrained(ckpt)
@@ -365,17 +364,16 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
 
     # MMS synthesis for hoc, unr, kru, sck
     model, tok = _load_mms(lang)
-    # Natural human pacing: language-calibrated to equalize speaker recording tempo variations
-    # Meta MMS checkpoints inherit native speaker tempos: unr (Mundari) speaker spoke ~1.7x faster than hoc (Ho).
-    # Calibrated pacing gives every language a calm, articulate primary school classroom pace (~80-90 wpm).
+    # Natural human pacing: calibrated per language to achieve a calm, natural classroom flow (~105-125 WPM)
+    # Avoids both rushed speech and sluggish/laggy phoneme stretching.
     MMS_PACING = {
-        "hoc": {"sentence": 0.78, "word": 0.75},
-        "unr": {"sentence": 0.45, "word": 0.42},
-        "kru": {"sentence": 0.62, "word": 0.58},
-        "sck": {"sentence": 0.55, "word": 0.50},
+        "hoc": {"sentence": 1.02, "word": 0.95},
+        "unr": {"sentence": 0.64, "word": 0.60},
+        "kru": {"sentence": 0.92, "word": 0.86},
+        "sck": {"sentence": 0.72, "word": 0.68},
     }
     words = len(text.strip().split())
-    pacing = MMS_PACING.get(lang, {"sentence": 0.78, "word": 0.75})
+    pacing = MMS_PACING.get(lang, {"sentence": 0.95, "word": 0.88})
     model.speaking_rate = pacing["word"] if words <= 2 else pacing["sentence"]
 
     inputs = tok(target_text, return_tensors="pt")
