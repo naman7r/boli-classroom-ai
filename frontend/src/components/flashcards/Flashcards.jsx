@@ -1506,7 +1506,7 @@ export default function Flashcards({ lessonText = "", currentGrade = 2 }) {
 
               {activeAudioBlob && (
                 <div className="card-player-embed" onClick={(e) => e.stopPropagation()}>
-                  <AudioPlayer blob={activeAudioBlob} label={`${card.hindi} native pronunciation`} />
+                  <AudioPlayer blob={activeAudioBlob} label={`${card.hindi} native pronunciation`} autoPlay={true} />
                 </div>
               )}
 
