@@ -140,26 +140,26 @@ export default function PrintWorksheet({
               <div className="ws-logo" aria-hidden="true">बो</div>
               <div className="ws-title-group">
                 <div className="ws-jepc-seal">
-                  झारखंड शिक्षा परियोजना परिषद् (JEPC) · स्कूली शिक्षा एवं साक्षरता विभाग
+                  BOLI Prototype · Mother-Tongue Multilingual Classroom Aid (SIH 2026)
                 </div>
-                <h1 className="ws-main-title">PALASH MTB-MLE — Multilingual Classroom Worksheet</h1>
+                <h1 className="ws-main-title">Multilingual Classroom Worksheet</h1>
                 <p className="ws-tagline">
-                  Mother Tongue-Based Multilingual Education & Bridge Pedagogy Aid · NIPUN Bharat FLN Aligned
+                  Mother Tongue-Based Multilingual Education & Bridge Pedagogy Aid · Aligned with Primary FLN Goals
                 </p>
               </div>
             </div>
             <div className="ws-meta-pills">
               <span className="ws-grade-badge">Class {grade}</span>
-              <span className="ws-sih-badge">PALASH MLE</span>
-              <span className="ws-nipun-badge">NIPUN FLN</span>
+              <span className="ws-sih-badge">BOLI MLE</span>
+              <span className="ws-nipun-badge">FLN Practice</span>
             </div>
           </header>
 
-          {/* Stamped NIPUN Bharat Competency Codes Bar */}
+          {/* Targeted Primary Learning Competency Codes Bar */}
           <div className="ws-nipun-code-bar">
             <span className="ws-nipun-bar-title">
-              <span className="material-symbols-outlined ws-inline-icon">verified</span>
-              <span>पाठ्यक्रम कोड मुद्रण (Stamped Competencies):</span>
+              <span className="material-symbols-outlined ws-inline-icon">menu_book</span>
+              <span>अधिगम दक्षताएं (Targeted Competencies):</span>
             </span>
             <div className="ws-nipun-tags">
               {(NIPUN_COMPETENCY_CODES[grade] || NIPUN_COMPETENCY_CODES[2]).map((comp, idx) => (

@@ -58,7 +58,7 @@ export default function Logo({ size = "medium", showTagline = true }) {
             style={{
               fontSize: size === "small" ? "1.25rem" : "1.45rem",
               fontWeight: 800,
-              color: "#381c05",
+              color: "var(--on-surface, #F3F6F4)",
               letterSpacing: "-0.02em",
               fontFamily: "var(--font-display, inherit)",
             }}

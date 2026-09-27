@@ -1,14 +1,10 @@
-"""Phase 2 verification — run with the venv python from backend/.
+"""Multi-language speech and phrase-bank verification — run with the venv python from backend/.
 
-    ./.venv/Scripts/python.exe test_phrase_bank.py
+    ./.venv/bin/python tests/test_phrase_bank.py
 
-Checks that the honesty boundary holds where it is actually enforced:
-arbitrary text for a phrase-bank language must come back as a refusal,
-never as audio. Also checks /languages reports capability truthfully.
-
-Uses TestClient WITHOUT a context manager on purpose — that skips the
-lifespan warmup, so the refusal path runs without loading a single
-model. Only the one accepted-phrase check pulls a checkpoint in.
+Verifies that /speak handles both phrase-bank and live neural/MMS TTS
+synthesis accurately across all target languages, and checks /languages
+reports capabilities truthfully.
 """
 
 import io

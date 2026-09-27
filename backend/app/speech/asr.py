@@ -178,8 +178,101 @@ def _restore_devanagari(text: str) -> str:
                 output = output.strip('"`\'')
                 if output and any("\u0900" <= c <= "\u097F" for c in output):
                     return output
+            elif provider == "gemini":
+                import requests
+                gemini_model = model_name or "gemini-3.6-flash"
+                gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent"
+                prompt = (
+                    "Convert the following phonetic/romanized Hindi text transcribed from audio into accurate, natural Devanagari Hindi (हिन्दी) script.\n"
+                    "Preserve the exact spoken meaning and vocabulary. Return ONLY the Devanagari Hindi text with no quotes, explanations, or Roman letters.\n\n"
+                    f"Spoken text: {text}"
+                )
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {
+                        "temperature": 0.0,
+                    },
+                }
+                res = requests.post(
+                    gemini_url,
+                    headers={"x-goog-api-key": key, "Content-Type": "application/json"},
+                    json=payload,
+                    timeout=8.0,
+                )
+                if res.status_code == 200:
+                    data = res.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            output = parts[0].get("text", "").strip().strip('"`\'')
+                            if output and any("\u0900" <= c <= "\u097F" for c in output):
+                                return output
         except Exception as e:
             log.warning("LLM Devanagari restoration failed: %s", e)
+
+    # Deterministic offline phonetic fallback for common primary school vocabulary
+    _PHONETIC_FALLBACK = {
+        "namaste": "नमस्ते",
+        "kisan": "किसान",
+        "khet": "खेत",
+        "pani": "पानी",
+        "kitab": "किताब",
+        "school": "स्कूल",
+        "iskul": "इस्कूल",
+        "padh": "पढ़",
+        "likh": "लिख",
+        "bacche": "बच्चे",
+        "bache": "बच्चे",
+        "ghar": "घर",
+        "dhan": "धान",
+        "ped": "पेड़",
+        "suraj": "सूरज",
+        "hawa": "हवा",
+        "gaay": "गाय",
+        "batao": "बताओ",
+        "dekho": "देखो",
+        "suno": "सुनो",
+        "shabash": "शाबाश",
+        "chup": "चुप",
+        "baitho": "बैठो",
+        "khade": "खड़े",
+        "haath": "हाथ",
+        "dho": "धो",
+        "hai": "है",
+        "hain": "हैं",
+        "ho": "हो",
+        "hoon": "हूँ",
+        "tha": "था",
+        "the": "थे",
+        "thi": "थी",
+        "mein": "में",
+        "me": "में",
+        "se": "से",
+        "ko": "को",
+        "par": "पर",
+        "ka": "का",
+        "ke": "के",
+        "ki": "की",
+        "aur": "और",
+        "ek": "एक",
+        "do": "दो",
+        "teen": "तीन",
+        "char": "चार",
+        "paanch": "पाँच",
+    }
+    words = text.split()
+    converted = []
+    matched = 0
+    for w in words:
+        clean_w = re.sub(r"[^\w]", "", w.lower())
+        if clean_w in _PHONETIC_FALLBACK:
+            converted.append(_PHONETIC_FALLBACK[clean_w])
+            matched += 1
+        else:
+            converted.append(w)
+    if matched > 0 and matched >= len(words) // 2:
+        return " ".join(converted)
 
     return text
 

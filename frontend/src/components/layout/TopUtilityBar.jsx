@@ -20,8 +20,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
     setOfflineDownloadStatus("packaging");
     setTimeout(() => {
       const offlineBundle = {
-        programme: "JEPC PALASH Mother Tongue-Based Multilingual Education (MTB-MLE)",
-        solution: "BOLI (PALASH MTB-MLE)",
+        solution: "BOLI Mother-Tongue Multilingual Classroom Aid (SIH 2026 Prototype)",
         version: "1.4.2-offline-release",
         generatedAt: new Date().toISOString(),
         targetHardware: {
@@ -97,6 +96,19 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
       document.body.classList.remove("high-contrast-mode");
     }
   }, [highContrast]);
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        setShowBackendModal(false);
+        setShowHelpModal(false);
+        setShowGovernanceModal(false);
+        setShowTabletModal(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="top-gov-utility-bar" role="region" aria-label="Portal Utility Bar">
@@ -274,6 +286,9 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
           onClick={() => setShowBackendModal(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="backend-modal-title"
             style={{
               background: "#1e1e1e",
               color: "#f3f4f6",
@@ -286,7 +301,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ margin: "0 0 8px", fontSize: "18px", color: "#fff" }}>
+            <h3 id="backend-modal-title" style={{ margin: "0 0 8px", fontSize: "18px", color: "#fff" }}>
               Backend Connection Settings
             </h3>
             <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#9ca3af", lineHeight: 1.5 }}>
@@ -417,6 +432,9 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
           onClick={() => setShowTabletModal(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tablet-modal-title"
             style={{
               background: "#18181b",
               color: "#f4f4f5",
@@ -436,7 +454,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                 <span className="material-symbols-outlined" style={{ fontSize: "24px", color: "#fea619" }}>
                   tablet_mac
                 </span>
-                <h3 style={{ margin: 0, fontSize: "18px", color: "#fff", fontWeight: "700" }}>
+                <h3 id="tablet-modal-title" style={{ margin: 0, fontSize: "18px", color: "#fff", fontWeight: "700" }}>
                   2GB Tablet & Offline Village Mode
                 </h3>
               </div>
@@ -632,6 +650,9 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
           onClick={() => setShowHelpModal(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="help-modal-title"
             style={{
               background: "#18181b",
               color: "#f4f4f5",
@@ -662,7 +683,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                   help_center
                 </span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "19px", color: "#fff", fontWeight: 700 }}>
+                  <h3 id="help-modal-title" style={{ margin: 0, fontSize: "19px", color: "#fff", fontWeight: 700 }}>
                     शिक्षक संदर्शिका व सहायता (Teacher Guide & Help FAQ)
                   </h3>
                   <p style={{ margin: "3px 0 0", fontSize: "12px", color: "#a1a1aa" }}>
@@ -708,7 +729,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                   <strong style={{ fontSize: "14px", color: "#86efac" }}>2. कक्षा शिक्षण के 3 प्रमुख साधन (Core Deliverables)</strong>
                 </div>
                 <ul style={{ margin: "4px 0 0", paddingLeft: "18px", fontSize: "12px", color: "#d4d4d8", lineHeight: 1.6 }}>
-                  <li><strong>प्रिंट कार्यपत्रक (Print Worksheet with QR):</strong> U-DISE स्कूल सील व NIPUN Bharat कोड युक्त द्विभाषी A4 शीट प्रिंट करें। QR कोड स्कैन करके विद्यार्थी घर पर भी उच्चारण सुन सकते हैं।</li>
+                  <li><strong>प्रिंट कार्यपत्रक (Print Worksheet with QR):</strong> विद्यालय विवरण व प्राथमिक अधिगम दक्षताओं से युक्त द्विभाषी A4 शीट प्रिंट करें। QR कोड स्कैन करके विद्यार्थी घर पर भी उच्चारण सुन सकते हैं।</li>
                   <li><strong>द्विभाषी शब्द-पत्ती (Bilingual Flashcards):</strong> पाठ के कठिन शब्दों को जनजातीय अवधारणाओं से जोड़ने वाली सचित्र 3D कार्ड्स।</li>
                   <li><strong>कक्षा ऑडियो व ऑफ़लाइन पैक (.zip):</strong> बिना इंटरनेट वाले गाँवों के लिए 1-क्लिक में पूरा ऑफ़लाइन पाठ डाउनलोड करें।</li>
                 </ul>
@@ -790,6 +811,9 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
           onClick={() => setShowGovernanceModal(false)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="governance-modal-title"
             style={{
               background: "#18181b",
               color: "#f4f4f5",
@@ -820,7 +844,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                   account_balance
                 </span>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "19px", color: "#fff", fontWeight: 700 }}>
+                  <h3 id="governance-modal-title" style={{ margin: 0, fontSize: "19px", color: "#fff", fontWeight: 700 }}>
                     झारखण्ड राज्य शैक्षिक पायलट व DIET समीक्षा तंत्र
                   </h3>
                   <p style={{ margin: "3px 0 0", fontSize: "12px", color: "#7dd3fc" }}>
@@ -889,47 +913,47 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                 </div>
               </div>
 
-              {/* Section 2: 3-Tier Dialect Moderation Workflow */}
+              {/* Section 2: Proposed 3-Tier Dialect Moderation Workflow */}
               <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #22c55e" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
                   <span className="material-symbols-outlined text-sm" style={{ color: "#22c55e" }}>published_with_changes</span>
-                  <strong style={{ fontSize: "14px", color: "#86efac" }}>2. त्रि-स्तरीय भाषा समीक्षा व संशोधन तंत्र (DIET Moderation Pipeline)</strong>
+                  <strong style={{ fontSize: "14px", color: "#86efac" }}>2. प्रस्तावित भाषा समीक्षा तंत्र (Proposed DIET Review Pipeline · Blueprint)</strong>
                 </div>
                 <div style={{ display: "grid", gap: "8px", fontSize: "12px", color: "#d4d4d8", lineHeight: 1.5 }}>
                   <div style={{ display: "flex", gap: "10px" }}>
                     <span style={{ background: "#15803d", color: "#fff", padding: "1px 6px", borderRadius: "4px", fontWeight: "700", height: "fit-content" }}>स्तर 1</span>
-                    <div><strong>कक्षा से सुझाव (Teacher Input):</strong> शिक्षक पाठ के नीचे दिए गए "Suggest Correction" बटन से स्थानीय बोली का सुझाव दर्ज करते हैं।</div>
+                    <div><strong>कक्षा से सुझाव (Teacher Input):</strong> शिक्षक पाठ के नीचे दिए गए "Suggest Correction" बटन से स्थानीय बोली का सुझाव दर्ज कर सकते हैं।</div>
                   </div>
                   <div style={{ display: "flex", gap: "10px" }}>
                     <span style={{ background: "#0284c7", color: "#fff", padding: "1px 6px", borderRadius: "4px", fontWeight: "700", height: "fit-content" }}>स्तर 2</span>
-                    <div><strong>DIET भाषा प्रकोष्ठ सत्यापन (DIET Verification):</strong> जिला शिक्षा प्रशिक्षण संस्थान (DIET) के जनजातीय भाषा विशेषज्ञ व CIIL दिशानिर्देशों के तहत ध्वनि शुद्धता जांची जाती है।</div>
+                    <div><strong>प्रस्तावित DIET विशेषज्ञ समीक्षा (Proposed Expert Review):</strong> भविष्य में जिला शिक्षा प्रशिक्षण संस्थान (DIET) भाषा प्रकोष्ठों द्वारा ध्वन्यात्मक समीक्षा का खाका।</div>
                   </div>
                   <div style={{ display: "flex", gap: "10px" }}>
                     <span style={{ background: "#9333ea", color: "#fff", padding: "1px 6px", borderRadius: "4px", fontWeight: "700", height: "fit-content" }}>स्तर 3</span>
-                    <div><strong>मासिक CRC ऑफ़लाइन वितरण (Offline SD Card Sync):</strong> स्वीकृत शब्दों को स्वतः संकलित कर मासिक क्लस्टर संकुल (CRC) बैठक में ऑफ़लाइन SD कार्ड द्वारा स्कूलों में अपडेट किया जाता है।</div>
+                    <div><strong>मासिक ऑफ़लाइन वितरण (Proposed Offline SD Card Sync):</strong> स्वीकृत शब्दों को संकलित कर क्लस्टर बैठकों में ऑफ़लाइन SD कार्ड द्वारा वितरित करने की योजना।</div>
                   </div>
                 </div>
               </div>
 
-              {/* Section 3: State Platform Integration */}
+              {/* Section 3: Proposed State Platform Integration Blueprint */}
               <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #f59e0b" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
                   <span className="material-symbols-outlined text-sm" style={{ color: "#fbbf24" }}>integration_instructions</span>
-                  <strong style={{ fontSize: "14px", color: "#fde68a" }}>3. राज्य पोर्टल e-Vidhyavahini व U-DISE+ एकीकरण</strong>
+                  <strong style={{ fontSize: "14px", color: "#fde68a" }}>3. प्रस्तावित राज्य पोर्टल एकीकरण खाका (Proposed Architecture · Not Yet Active)</strong>
                 </div>
                 <p style={{ margin: 0, fontSize: "12px", color: "#d4d4d8", lineHeight: 1.5 }}>
-                  BOLI को अलग ऐप के रूप में नहीं, बल्कि <strong>e-Vidhyavahini</strong> शिक्षक आईडी से SSO (सिंगल साइन-ऑन) द्वारा जोड़ा गया है। प्रत्येक मुद्रित वर्कशीट पर 11-अंकों का आधिकारिक U-DISE कोड स्वतः मुद्रित होता है जिससे राज्य स्तर पर पाठ उपयोग का ऑफ़लाइन ट्रैकिंग रिकॉर्ड सुरक्षित रहता है।
+                  भविष्य की योजना: BOLI को सीधे <strong>e-Vidhyavahini</strong> शिक्षक आईडी से SSO द्वारा जोड़ने तथा मुद्रित सामग्री पर U-DISE कोड संदर्भित करने की तकनीकी रूपरेखा ताकि ऑफ़लाइन पाठ प्रगति का राज्य स्तर पर रिकॉर्ड रखा जा सके।
                 </p>
               </div>
 
-              {/* Section 4: NIPUN Bharat FLN Evaluation Protocol */}
+              {/* Section 4: Proposed FLN Evaluation Protocol */}
               <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #a855f7" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
                   <span className="material-symbols-outlined text-sm" style={{ color: "#c084fc" }}>analytics</span>
-                  <strong style={{ fontSize: "14px", color: "#d8b4fe" }}>4. NIPUN Bharat FLN प्रभाव मापन (Empirical 30-Day Trial Protocol)</strong>
+                  <strong style={{ fontSize: "14px", color: "#d8b4fe" }}>4. प्रस्तावित प्रभाव मापन रूपरेखा (Proposed 30-Day Evaluation Blueprint)</strong>
                 </div>
                 <p style={{ margin: 0, fontSize: "12px", color: "#d4d4d8", lineHeight: 1.5 }}>
-                  1,000 प्राथमिक विद्यार्थियों (500 नियंत्रण समूह / 500 BOLI समूह) पर 30-दिवसीय फील्ड ट्रायल: <strong>WCPM (Words Correct Per Minute)</strong> तथा <strong>EGRA (Early Grade Reading Assessment)</strong> बोधगम्यता स्कोर में अपेक्षित 34% सुधार का साक्ष्य-आधारित प्रोटोकॉल।
+                  अनुशंसित फील्ड ट्रायल रूपरेखा: <strong>WCPM (Words Correct Per Minute)</strong> तथा <strong>EGRA</strong> स्तर पर मातृभाषा माध्यम से समझ के प्रभाव के मूल्यांकन का प्रस्तावित प्रारूप।
                 </p>
               </div>
             </div>

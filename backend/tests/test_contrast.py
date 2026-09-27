@@ -111,7 +111,7 @@ def main():
         # Multilingual translation: Ho is supported via North Munda transfer
         r = client.post("/translate", json={"text": "पानी", "target": "hoc_Deva"})
         assert r.status_code == 200, r.status_code
-        assert r.json()["translated"] in ("दा", "दाः", "ᱫᱟᱜ", "ଦା", "दा "), r.json()
+        assert r.json()["translated"] == "दाः", f"Expected normalized Ho 'दाः', got {r.json()}"
         print("ho trans : /translate Ho returned valid translation:", r.json()["translated"])
 
         # Unsupported target remains a hard 501

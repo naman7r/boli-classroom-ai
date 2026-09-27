@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
-from app.api.ocr import _binary, LANG
+from app.api.ocr import _binary
 
 router = APIRouter()
 log = logging.getLogger(__name__)

@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { transcribeAudio, translate, speak, translateAndSpeak } from "../../api";
 import AudioPlayer from "../AudioPlayer";
+import { translateTargetFor } from "../../utils/capability";
 
 export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
   const [inputText, setInputText] = useState("");
@@ -236,7 +237,7 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
 
     try {
       const dialectMeta = DIALECTS.find((d) => d.code === langCode);
-      const target = dialectMeta?.target || (langCode === "sat" ? "sat_Olck" : `${langCode}_Deva`);
+      const target = translateTargetFor({ code: langCode, translation: "full" }) || (langCode === "sat" ? "sat_Olck" : `${langCode}_Deva`);
 
       setStatusMessage(`Translating & synthesizing ${dialectMeta?.name || langCode}…`);
       let resultData = null;
@@ -385,7 +386,7 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
             </span>
             <span className="soundboard-engine-pill">
               <span className="material-symbols-outlined text-xs">record_voice_over</span>
-              Meta MMS Speech Synthesis
+              {selectedLang === "sat" ? "Indic Parler-TTS (Arjun / Pushpa)" : "Meta MMS Speech Synthesis"}
             </span>
           </div>
         </div>
@@ -420,14 +421,13 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
               >
                 <div className="sb-card-header">
                   <span className="sb-hindi-phrase">{cmd.hindi}</span>
-                  <button
-                    type="button"
+                  <span
                     className="sb-play-btn"
                     title="Tap to speak aloud over classroom speaker"
-                    aria-label={`Speak ${cmd.hindi}`}
+                    aria-hidden="true"
                   >
                     <span className="material-symbols-outlined text-sm">play_arrow</span>
-                  </button>
+                  </span>
                 </div>
                 <div className="sb-native-phrase" lang={selectedLang}>
                   {tr.native}
@@ -467,7 +467,7 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
                 : "Custom Speech Input (कक्षा में नया वाक्य बोलें)"}
             </h2>
             <p className="text-secondary text-sm">
-              Speak any sentence in Hindi. BOLI instantly adapts, translates to the child's mother tongue, and plays authentic village-accurate audio over classroom speakers.
+              Speak any sentence in Hindi. BOLI instantly adapts, translates to the child's mother tongue, and plays synthesized tribal speech audio over classroom speakers.
             </p>
           </div>
         </div>

@@ -483,7 +483,7 @@ export default function Result({
               </span>
               <h3 className="ps-deliverable-name">Print-Ready Worksheet</h3>
               <p className="ps-deliverable-desc">
-                A4 bilingual sheet with school stamp, NIPUN learning outcome codes, and QR code for audio playback.
+                A4 bilingual sheet with school details, primary learning outcome codes, and QR code for audio playback.
               </p>
             </div>
             <button

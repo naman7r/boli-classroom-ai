@@ -5,7 +5,7 @@ by pivoting through an intermediate bridge language (primarily Hindi):
 e.g. English -> Hindi -> Kurukh/Sadri/Ho
 """
 
-from typing import List, Tuple
+from typing import List
 from .base import BaseTranslationEngine
 
 

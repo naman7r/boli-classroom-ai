@@ -432,8 +432,8 @@ export default function Capture({
                   </span>
                 </div>
                 <span className="metric-badge">
-                  <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    verified
+                  <span className="material-symbols-outlined text-xs">
+                    speed
                   </span>
                   Class {grade} Pacing
                 </span>

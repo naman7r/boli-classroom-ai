@@ -30,6 +30,14 @@ function Stepper({ step, onSelectStep, canGoToStep }) {
               } ${!isAllowed ? "is-disabled" : ""}`}
               aria-current={index === step ? "step" : undefined}
               aria-disabled={!isAllowed}
+              role={isAllowed ? "button" : undefined}
+              tabIndex={isAllowed ? 0 : -1}
+              onKeyDown={(e) => {
+                if (isAllowed && onSelectStep && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  onSelectStep(index);
+                }
+              }}
               onClick={() => {
                 if (isAllowed && onSelectStep) {
                   onSelectStep(index);

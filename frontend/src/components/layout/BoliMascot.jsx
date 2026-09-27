@@ -26,6 +26,12 @@ export default function BoliMascot({ currentGrade = 2 }) {
       onClick={handleClick}
       role="button"
       tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
       title="क्लिक करके बोली साथी से बात करें!"
       aria-label="बोली साथी - प्राथमिक विद्यालय मित्र"
     >

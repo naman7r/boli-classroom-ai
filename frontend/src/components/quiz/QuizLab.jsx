@@ -1755,6 +1755,8 @@ export default function QuizLab({ lessonText, currentGrade = 2 }) {
                   <button
                     key={idx}
                     type="button"
+                    role="radio"
+                    aria-checked={selectedOption === idx}
                     className={`quiz-option-btn ${selectedOption === idx ? "is-selected" : ""} ${statusClass}`}
                     onClick={() => handleSelectOption(idx)}
                     disabled={isAnswered}
@@ -1814,7 +1816,7 @@ export default function QuizLab({ lessonText, currentGrade = 2 }) {
             <span>
               {quizMode === "chapter_pdf"
                 ? `पाठ्यपुस्तक परख: ${chapterFile}`
-                : `कक्षा ${selectedGrade} अधिगम उपलब्धि प्रमाण पत्र`}
+                : `कक्षा ${selectedGrade} अधिगम अभ्यास प्रगति पत्र`}
             </span>
           </div>
 
@@ -1835,7 +1837,7 @@ export default function QuizLab({ lessonText, currentGrade = 2 }) {
               <span className="stat-value">
                 {percentage >= 80 ? "उत्कृष्ट (Grade A)" : percentage >= 50 ? "संतोषजनक (Grade B)" : "पुनराभ्यास (Review Needed)"}
               </span>
-              <span className="stat-label">निपुण स्तर (FLN Milestone)</span>
+              <span className="stat-label">अभ्यास स्तर (Practice Milestone)</span>
             </div>
           </div>
 

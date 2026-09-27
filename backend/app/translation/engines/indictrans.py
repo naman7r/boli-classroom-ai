@@ -9,7 +9,7 @@ Supports:
 """
 
 import os
-from typing import List, Tuple
+from typing import List
 from functools import lru_cache
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer

@@ -140,7 +140,7 @@ export default function LanguageSelect({
               <span>
                 {group.key === "full"
                   ? "Multi-Engine Translation & Speech"
-                  : "Validated Audio Phrase Bank"}
+                  : "Curated Classroom Phrase Bank (Validation Pending)"}
               </span>
             </span>
           </div>

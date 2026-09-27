@@ -157,16 +157,19 @@ class TranslationRouter:
         translated_items = [(segmented_items[i][0], translated_sentences[i]) for i in range(len(segmented_items))]
         final_text = reconstruct_text(text, translated_items)
 
-        # 5. Auto-sanitize known cross-script leakages (e.g. Meetei Mayek into Ol Chiki)
-        final_text = sanitize_script_leakage(final_text, tgt_norm)
+        # 5. Check if raw translation contains script contamination before auto-sanitization
+        raw_contaminated = contains_meetei_mayek(final_text)
 
-        # 6. Script validation & leakage checks
-        is_valid, warnings = validate_script(final_text, tgt_norm)
-        is_contaminated = contains_meetei_mayek(final_text)
+        # 6. Auto-sanitize known cross-script leakages (e.g. Meetei Mayek into Ol Chiki)
+        sanitized_text = sanitize_script_leakage(final_text, tgt_norm)
+
+        # 7. Script validation & leakage checks
+        is_valid, warnings = validate_script(sanitized_text, tgt_norm)
+        is_contaminated = raw_contaminated or contains_meetei_mayek(sanitized_text)
 
         return {
-            "translation": final_text,
-            "translated": final_text,
+            "translation": sanitized_text,
+            "translated": sanitized_text,
             "source_language": src_norm,
             "target_language": tgt_norm,
             "engine": engine.name,
