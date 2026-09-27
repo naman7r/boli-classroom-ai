@@ -119,16 +119,16 @@ export default function App() {
   return (
     <>
       <ForestBackground />
+      {/* Top Utility Bar (Accessibility & Navigation) */}
+      <TopUtilityBar activeLang={activeLang} onToggleLang={setActiveLang} />
+
       <div className="app-shell">
-        {/* Top Utility Bar (Accessibility & Navigation) */}
-        <TopUtilityBar activeLang={activeLang} onToggleLang={setActiveLang} />
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
 
-      <a className="skip-link" href="#main-content">
-        Skip to content
-      </a>
-
-      {/* Main Header */}
-      <header className="app-header-bar sun-card-shadow">
+        {/* Main Header */}
+        <header className="app-header-bar sun-card-shadow">
         <div className="header-brand">
           <Logo size="small" showTagline={true} />
         </div>

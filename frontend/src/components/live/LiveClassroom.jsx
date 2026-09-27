@@ -366,31 +366,6 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
         </div>
       </div>
 
-      {/* Institutional Feasibility & Deployment Specs Bar */}
-      <div className="institutional-feasibility-bar sun-card-shadow">
-        <div className="feasibility-badge-group">
-          <div className="feasibility-item">
-            <span className="material-symbols-outlined text-green-600 text-sm">offline_pin</span>
-            <span><strong>Offline Edge Architecture:</strong> 100% Deterministic Rule & Morphological Bridge</span>
-          </div>
-          <div className="feasibility-divider" />
-          <div className="feasibility-item">
-            <span className="material-symbols-outlined text-blue-600 text-sm">speed</span>
-            <span><strong>Sub-50ms Engine:</strong> Lightweight Transfer · CPU-Ready for Ho, Mundari & Sadri</span>
-          </div>
-          <div className="feasibility-divider" />
-          <div className="feasibility-item">
-            <span className="material-symbols-outlined text-amber-600 text-sm">tablet_mac</span>
-            <span><strong>Tested on:</strong> Low Memory Footprint (&lt;150MB RAM) on 2GB Tablets</span>
-          </div>
-          <div className="feasibility-divider" />
-          <div className="feasibility-item">
-            <span className="material-symbols-outlined text-green-700 text-sm">record_voice_over</span>
-            <span><strong>Phonetic Protocol:</strong> Meta MMS Speech Synthesis</span>
-          </div>
-        </div>
-      </div>
-
       {/* 1-Tap Teacher Classroom Soundboard (Bhasha-Sahayak) */}
       <div className="teacher-soundboard-panel sun-card-shadow">
         <div className="soundboard-header">
@@ -399,13 +374,13 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
             <div>
               <h2 className="soundboard-title">1-Tap Bhasha-Sahayak Soundboard (कक्षा भाषा-सहायक)</h2>
               <p className="soundboard-subtitle">
-                Pre-validated routines with phonetic Romanized guides so non-tribal Hindi teachers speak fluently without prior training
+                Classroom routines with phonetic pronunciation guides for primary teachers
               </p>
             </div>
           </div>
           <div className="soundboard-active-lang" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
             <span className="verified-voice-badge">
-              <span className="material-symbols-outlined text-xs">verified</span>
+              <span className="material-symbols-outlined text-xs">record_voice_over</span>
               Meta MMS Speech Synthesis
             </span>
             <div style={{ fontSize: "12px", color: "#6b7280" }}>
