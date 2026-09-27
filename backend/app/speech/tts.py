@@ -106,6 +106,12 @@ def _load_parler_tts():
     return model, prompt_tok, desc_tok
 
 
+@lru_cache(maxsize=16)
+def _get_cached_desc_inputs(description: str, device_str: str):
+    _, _, desc_tok = _load_parler_tts()
+    return desc_tok(description, return_tensors="pt").to(torch.device(device_str))
+
+
 @lru_cache(maxsize=4)
 def _load_mms(lang: str):
     """Load once per language, keep for the process lifetime (ARCHITECTURE.md §4)."""
@@ -319,7 +325,7 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
             )
 
         description = speaker_desc or DEFAULT_SANTALI_SPEAKER
-        desc_inputs = desc_tok(description, return_tensors="pt").to(device)
+        desc_inputs = _get_cached_desc_inputs(description, str(device))
 
         # No artificial token limit: Parler-TTS generates whatever is required
         # for the complete text and stops naturally on EOS (up to model's full sequence length).
