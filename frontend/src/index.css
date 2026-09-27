@@ -5615,13 +5615,41 @@ body.high-contrast-mode .step-card {
   margin: 0.2rem 0 0;
 }
 
-.soundboard-active-lang {
-  font-size: 0.85rem;
-  padding: 0.4rem 0.85rem;
-  background: var(--canvas, #fff8f4);
-  border: 1px solid var(--line-strong, #d5c8bb);
-  border-radius: 999px;
-  color: var(--primary, #005231);
+.soundboard-active-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.soundboard-dialect-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--surface-container, #18201C);
+  border: 1px solid var(--outline-variant, rgba(255, 255, 255, 0.08));
+  font-size: 0.8rem;
+  color: var(--text-muted, #9AA8A0);
+}
+
+.soundboard-dialect-pill strong {
+  color: var(--text, #F3F6F4);
+  font-weight: 700;
+}
+
+.soundboard-engine-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(25, 196, 90, 0.08);
+  border: 1px solid rgba(25, 196, 90, 0.22);
+  color: #19C45A;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .soundboard-category-tabs {
