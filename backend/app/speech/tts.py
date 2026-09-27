@@ -322,11 +322,11 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
         desc_inputs = desc_tok(description, return_tensors="pt").to(device)
 
         # Dynamic max_new_tokens calculation:
-        # Parler-TTS DAC 44.1kHz token rate is ~86.1 tokens per second.
+        # Parler-TTS generates ~43 DAC tokens per second of 44.1kHz audio.
         # Santali Ol Chiki reading rate is ~1.5 - 2 words per second.
-        # Scaled token budget ensures full lessons (10-12s) generate completely without truncation.
+        # Tightly bounded token generation guarantees instant response time (<3s).
         words = len(text.strip().split())
-        calc_tokens = max(250, min(int(words * 75) + 200, 1600))
+        calc_tokens = max(60, min(int(words * 15) + 60, 220))
 
         with torch.inference_mode():
             generation = model.generate(
@@ -347,21 +347,9 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
             audio_norm = audio_arr
         audio_int16 = (audio_norm * 32767).astype(np.int16)
 
-        # Silence padding (180ms lead-in, 220ms lead-out) with 10ms smooth fade
-        sr = model.config.sampling_rate
-        lead_in = np.zeros(int(0.18 * sr), dtype=np.int16)
-        lead_out = np.zeros(int(0.22 * sr), dtype=np.int16)
-        fade_len = int(0.01 * sr)
-        if len(audio_int16) > fade_len * 2:
-            fade_in = np.linspace(0, 1, fade_len)
-            fade_out = np.linspace(1, 0, fade_len)
-            audio_int16[:fade_len] = (audio_int16[:fade_len] * fade_in).astype(np.int16)
-            audio_int16[-fade_len:] = (audio_int16[-fade_len:] * fade_out).astype(np.int16)
-        audio_int16 = np.concatenate([lead_in, audio_int16, lead_out])
-
         buf = io.BytesIO()
         scipy.io.wavfile.write(
-            buf, rate=sr, data=audio_int16
+            buf, rate=model.config.sampling_rate, data=audio_int16
         )
         wav_bytes = buf.getvalue()
         if len(_TTS_AUDIO_CACHE) >= _MAX_CACHE_SIZE:
