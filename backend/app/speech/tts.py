@@ -321,20 +321,14 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
         description = speaker_desc or DEFAULT_SANTALI_SPEAKER
         desc_inputs = desc_tok(description, return_tensors="pt").to(device)
 
-        # Dynamic max_new_tokens calculation:
-        # Parler-TTS generates ~43 DAC tokens per second of 44.1kHz audio.
-        # Santali Ol Chiki reading rate is ~1.5 - 2 words per second.
-        # Tightly bounded token generation guarantees instant response time (<3s).
-        words = len(text.strip().split())
-        calc_tokens = max(60, min(int(words * 15) + 60, 220))
-
+        # No artificial token limit: Parler-TTS generates whatever is required
+        # for the complete text and stops naturally on EOS (up to model's full sequence length).
         with torch.inference_mode():
             generation = model.generate(
                 input_ids=desc_inputs.input_ids,
                 attention_mask=desc_inputs.attention_mask,
                 prompt_input_ids=prompt_inputs.input_ids,
                 prompt_attention_mask=prompt_inputs.attention_mask,
-                max_new_tokens=calc_tokens,
                 do_sample=True,
                 temperature=0.7,
             )
