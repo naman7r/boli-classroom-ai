@@ -195,7 +195,21 @@ def enhance_audio(waveform: np.ndarray, sample_rate: int = 16000) -> tuple[np.nd
     else:
         norm = resampled
 
-    return (norm * 32767).astype(np.int16), target_sr
+    audio_int16 = (norm * 32767).astype(np.int16)
+
+    # 6. Silence padding (180ms lead-in, 220ms lead-out) with 10ms smooth fade
+    # Ensures browser audio contexts and hardware speaker drivers do not clip initial consonants.
+    lead_in = np.zeros(int(0.18 * target_sr), dtype=np.int16)
+    lead_out = np.zeros(int(0.22 * target_sr), dtype=np.int16)
+    fade_len = int(0.01 * target_sr)
+    if len(audio_int16) > fade_len * 2:
+        fade_in = np.linspace(0, 1, fade_len)
+        fade_out = np.linspace(1, 0, fade_len)
+        audio_int16[:fade_len] = (audio_int16[:fade_len] * fade_in).astype(np.int16)
+        audio_int16[-fade_len:] = (audio_int16[-fade_len:] * fade_out).astype(np.int16)
+
+    audio_int16 = np.concatenate([lead_in, audio_int16, lead_out])
+    return audio_int16, target_sr
 
 
 def deva_to_odia(text: str, target_lang: str = "hoc") -> str:
@@ -220,7 +234,6 @@ def deva_to_odia(text: str, target_lang: str = "hoc") -> str:
         "\u0914": "\u0905\u0909",     # औ -> अउ
         "\u0937": "\u0938",           # ष -> स
         "\u0936": "\u0938",           # श -> स (Ho treats sibilants uniformly)
-        "\u0903": "\u0939",           # ः (visarga / glottal stop) -> ह (voiced aspirate)
         "\u0943": "\u0941",           # ृ -> ु
         "\u0944": "\u0941",           # ॄ -> ु
     }
@@ -309,11 +322,11 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
         desc_inputs = desc_tok(description, return_tensors="pt").to(device)
 
         # Dynamic max_new_tokens calculation:
-        # Parler-TTS generates ~43 DAC tokens per second of 44.1kHz audio.
+        # Parler-TTS DAC 44.1kHz token rate is ~86.1 tokens per second.
         # Santali Ol Chiki reading rate is ~1.5 - 2 words per second.
-        # Tightly bounded token generation guarantees instant response time (<3s).
+        # Scaled token budget ensures full lessons (10-12s) generate completely without truncation.
         words = len(text.strip().split())
-        calc_tokens = max(60, min(int(words * 15) + 60, 220))
+        calc_tokens = max(250, min(int(words * 75) + 200, 1600))
 
         with torch.inference_mode():
             generation = model.generate(
@@ -334,9 +347,21 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
             audio_norm = audio_arr
         audio_int16 = (audio_norm * 32767).astype(np.int16)
 
+        # Silence padding (180ms lead-in, 220ms lead-out) with 10ms smooth fade
+        sr = model.config.sampling_rate
+        lead_in = np.zeros(int(0.18 * sr), dtype=np.int16)
+        lead_out = np.zeros(int(0.22 * sr), dtype=np.int16)
+        fade_len = int(0.01 * sr)
+        if len(audio_int16) > fade_len * 2:
+            fade_in = np.linspace(0, 1, fade_len)
+            fade_out = np.linspace(1, 0, fade_len)
+            audio_int16[:fade_len] = (audio_int16[:fade_len] * fade_in).astype(np.int16)
+            audio_int16[-fade_len:] = (audio_int16[-fade_len:] * fade_out).astype(np.int16)
+        audio_int16 = np.concatenate([lead_in, audio_int16, lead_out])
+
         buf = io.BytesIO()
         scipy.io.wavfile.write(
-            buf, rate=model.config.sampling_rate, data=audio_int16
+            buf, rate=sr, data=audio_int16
         )
         wav_bytes = buf.getvalue()
         if len(_TTS_AUDIO_CACHE) >= _MAX_CACHE_SIZE:
@@ -352,6 +377,13 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
 
     # MMS synthesis for hoc, unr, kru, sck
     model, tok = _load_mms(lang)
+    words = len(text.strip().split())
+    # Pedagogical pacing: deliberate, clear pronunciation for single vocabulary words
+    if words <= 3:
+        model.speaking_rate = 0.88
+    else:
+        model.speaking_rate = 1.0
+
     inputs = tok(target_text, return_tensors="pt")
     if inputs["input_ids"].shape[1] == 0:
         raise ValueError(

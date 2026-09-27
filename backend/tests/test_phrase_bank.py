@@ -23,7 +23,11 @@ from fastapi.testclient import TestClient  # noqa: E402
 from main import app  # noqa: E402
 from models import phrase_bank  # noqa: E402
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+try:
+    if hasattr(sys.stdout, "buffer"):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+except Exception:
+    pass
 
 client = TestClient(app)
 

@@ -133,6 +133,57 @@ def _normalize_lang(code: str | None) -> str:
     return SUPPORTED_ASR_LANGS.get(cleaned, cleaned.split("_")[0])
 
 
+def _restore_devanagari(text: str) -> str:
+    """Convert phonetic/romanized speech output into clean, natural Devanagari Hindi.
+
+    Meta MMS ASR outputs romanized Latin characters (via uroman) for Hindi.
+    This restores natural Devanagari Hindi script with accurate vocabulary, matras,
+    and punctuation so the teacher's speech input is 100% Devanagari Hindi.
+    """
+    if not text or not any("a" <= c.lower() <= "z" for c in text):
+        return text
+
+    import os
+    provider = (os.getenv("LLM_PROVIDER") or "").strip().lower()
+    key = (os.getenv("LLM_API_KEY") or "").strip()
+    base_url = (os.getenv("LLM_BASE_URL") or "").strip()
+    model_name = (os.getenv("LLM_MODEL") or "").strip()
+
+    if key and (base_url or provider == "gemini"):
+        try:
+            if provider == "openai_compatible" or base_url:
+                import openai
+                client = openai.OpenAI(
+                    api_key=key,
+                    base_url=base_url or "https://api.openai.com/v1",
+                    timeout=8.0,
+                )
+                res = client.chat.completions.create(
+                    model=model_name or "gpt-4o-mini",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are a Hindi speech-to-text post-processor for primary school teachers in India. "
+                                "Convert phonetic/romanized Hindi text (transcribed from audio) into accurate, natural Devanagari Hindi (हिन्दी) script. "
+                                "Preserve the teacher's exact spoken meaning, numbers, and vocabulary. "
+                                "Return ONLY the Devanagari Hindi text, with no explanations, no quotes, and no English characters."
+                            ),
+                        },
+                        {"role": "user", "content": text},
+                    ],
+                    temperature=0.0,
+                )
+                output = res.choices[0].message.content.strip()
+                output = output.strip('"`\'')
+                if output and any("\u0900" <= c <= "\u097F" for c in output):
+                    return output
+        except Exception as e:
+            log.warning("LLM Devanagari restoration failed: %s", e)
+
+    return text
+
+
 def transcribe(audio_bytes: bytes, lang: str = "hin") -> str:
     """Transcribe spoken audio in Hindi or tribal languages (Santali, Ho, Mundari, Kurukh, Sadri)."""
     audio_array = _decode_audio(audio_bytes)
@@ -159,5 +210,10 @@ def transcribe(audio_bytes: bytes, lang: str = "hin") -> str:
         logits = model(inputs.input_values).logits
 
     predicted_ids = torch.argmax(logits, dim=-1)
-    transcription = processor.batch_decode(predicted_ids)[0]
+    transcription = processor.batch_decode(predicted_ids)[0].strip()
+
+    # If Hindi or output contains Latin phonetic letters, restore pure Devanagari Hindi
+    if target_lang == "hin" or any("a" <= c.lower() <= "z" for c in transcription):
+        transcription = _restore_devanagari(transcription)
+
     return transcription.strip()

@@ -26,14 +26,14 @@ const FOUNDATION_CARDS = [
         script: "दाः (𑢵𑢫)",
         translit: "Daa",
         langName: "Ho (हो / 𑢹𑣉𑣉)",
-        ttsText: "दा",
+        ttsText: "दाः",
         sentence: "कुएं का पानी साफ है। (कुंई रेयाः दाः सफा मेनाः)",
       },
       unr: {
         script: "दाः",
         translit: "Da:",
         langName: "Mundari (मुंडारी)",
-        ttsText: "दा",
+        ttsText: "दाः",
         sentence: "कुएं का पानी साफ है। (कुंआ रेयाः दाः सफा मेनाः)",
       },
       kru: {

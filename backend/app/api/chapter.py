@@ -111,8 +111,8 @@ def split_hindi_sentences(raw_text: str) -> List[str]:
     for match in raw_matches:
         cleaned = re.sub(r"\s+", " ", match).strip()
         words = cleaned.split()
-        # Require at least 3 words and 8 characters with readable Hindi/Latin script
-        if len(words) >= 3 and len(cleaned) >= 8 and any(
+        # Require at least 1 word and 2 characters with readable Hindi/Latin script
+        if len(words) >= 1 and len(cleaned) >= 2 and any(
             ("\u0900" <= c <= "\u097F") or c.isalpha() for c in cleaned
         ):
             if not cleaned.endswith(("।", "॥", "?", "!")):

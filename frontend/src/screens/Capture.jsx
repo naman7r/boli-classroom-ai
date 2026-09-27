@@ -28,6 +28,8 @@ export default function Capture({
   const chapterFileInput = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const speechRecognitionRef = useRef(null);
+  const speechCapturedRef = useRef(false);
 
 
   async function handleImage(event) {
@@ -71,6 +73,35 @@ export default function Capture({
 
   async function startRecording() {
     setError("");
+    speechCapturedRef.current = false;
+
+    // Optional browser-native Hindi speech recognition for real-time Devanagari capture
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRec) {
+      try {
+        const recognition = new SpeechRec();
+        recognition.lang = "hi-IN";
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.onresult = (e) => {
+          const transcript = Array.from(e.results)
+            .map((r) => r[0].transcript)
+            .join(" ")
+            .trim();
+          if (transcript) {
+            speechCapturedRef.current = true;
+            setHindiText((prev) => (prev ? prev + " " + transcript : transcript));
+            setSourceType("asr");
+          }
+        };
+        recognition.onerror = () => {};
+        recognition.start();
+        speechRecognitionRef.current = recognition;
+      } catch {
+        speechRecognitionRef.current = null;
+      }
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
@@ -80,6 +111,9 @@ export default function Capture({
       };
       recorder.onstop = async () => {
         stream.getTracks().forEach((track) => track.stop());
+        if (speechCapturedRef.current) {
+          return;
+        }
         const audioBlob = new Blob(audioChunksRef.current, {
           type: recorder.mimeType || "audio/wav",
         });
@@ -105,6 +139,12 @@ export default function Capture({
   }
 
   function stopRecording() {
+    if (speechRecognitionRef.current) {
+      try {
+        speechRecognitionRef.current.stop();
+      } catch {}
+      speechRecognitionRef.current = null;
+    }
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
