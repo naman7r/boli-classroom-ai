@@ -4,7 +4,7 @@ import AudioPlayer from "../AudioPlayer";
 
 export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
   const [inputText, setInputText] = useState("");
-  const [selectedLang, setSelectedLang] = useState("hoc"); // "hoc" | "unr" | "sat" | "kru" | "sck"
+  const [selectedLang, setSelectedLang] = useState("sat"); // "sat" | "hoc" | "unr" | "kru" | "sck"
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
@@ -177,9 +177,9 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
   ];
 
   const DIALECTS = [
+    { code: "sat", name: "Santali (Ol Chiki ᱥᱟᱱᱛᱟᱲᱤ)", target: "sat_Olck", type: "neural", badge: "Neural MT" },
     { code: "hoc", name: "Ho (हो Devanagari)", target: "hoc_Deva", type: "transfer", badge: "Linguistic Transfer" },
     { code: "unr", name: "Mundari (मुंडारी)", target: "unr_Deva", type: "transfer", badge: "Linguistic Transfer" },
-    { code: "sat", name: "Santali (Ol Chiki ᱥᱟᱱᱛᱟᱲᱤ)", target: "sat_Olck", type: "neural", badge: "Neural MT" },
     { code: "kru", name: "Kurukh (कुड़ुख़)", target: "kru_Deva", type: "neural", badge: "Neural MT" },
     { code: "sck", name: "Sadri (नागपुरी)", target: "sck_Deva", type: "transfer", badge: "Morphological Transfer" },
   ];
@@ -286,7 +286,7 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
 
   // 1-Tap Soundboard Fast-Path Execution for Non-Native Teachers
   async function handleSoundboardCommand(cmd) {
-    const tr = cmd.translations[selectedLang] || cmd.translations["hoc"] || {};
+    const tr = cmd.translations[selectedLang] || cmd.translations["sat"] || cmd.translations["hoc"] || {};
     const nativeText = tr.native || cmd.hindi;
     const translit = tr.translit || "";
     const dialectMeta = DIALECTS.find((d) => d.code === selectedLang);
@@ -408,7 +408,7 @@ export default function LiveClassroom({ onLoadIntoStudio, currentGrade = 2 }) {
         {/* 1-Tap Soundboard Command Grid */}
         <div className="soundboard-grid">
           {TEACHER_SOUNDBOARD[activeSoundboardTab].commands.map((cmd) => {
-            const tr = cmd.translations[selectedLang] || cmd.translations["hoc"] || {};
+            const tr = cmd.translations[selectedLang] || cmd.translations["sat"] || cmd.translations["hoc"] || {};
             return (
               <div
                 key={cmd.id}
