@@ -665,19 +665,23 @@ export default function Result({
 
               {item.translations?.length > 0 && (
                 <div style={{ marginTop: "1rem" }}>
-                  {item.translations.map((t, tIdx) => (
-                    <div key={tIdx} className="hero-script-display">
-                      <div className="lang-card-header">
-                        <span className="lang-name">{t.name}</span>
-                        <span className="chip-badge chip-badge--full">
-                          {capabilityBadge(t)}
-                        </span>
+                  {item.translations.map((t, tIdx) => {
+                    const langMeta = chosen.find((c) => c.code === t.code);
+                    const badgeText = langMeta ? capabilityBadge(langMeta) : capabilityBadge(t);
+                    return (
+                      <div key={tIdx} className="hero-script-display">
+                        <div className="lang-card-header">
+                          <span className="lang-name">{t.name}</span>
+                          <span className="chip-badge chip-badge--full">
+                            {badgeText}
+                          </span>
+                        </div>
+                        <div className="target-script-large" lang={t.code}>
+                          {t.translated}
+                        </div>
                       </div>
-                      <div className="target-script-large" lang={t.code}>
-                        {t.translated}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 

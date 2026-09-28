@@ -7519,3 +7519,40 @@ body:not(.light-theme-override) .drill-steps-list li strong {
     scroll-behavior: auto !important;
   }
 }
+
+/* Language Card Header & Badge Alignment */
+.lang-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.5rem;
+}
+
+.lang-card-header .lang-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text, #211a13);
+}
+
+.chip-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+.chip-badge--full {
+  background: rgba(34, 197, 94, 0.12);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.chip-badge--phrase_bank {
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+

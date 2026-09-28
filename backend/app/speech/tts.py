@@ -73,8 +73,11 @@ def _ensure_dac_patched():
 
 
 def _get_parler_device() -> torch.device:
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
+    # Use CUDA on Linux/Windows GPU systems.
+    # On macOS Apple Silicon (MPS), PyTorch MPS driver has a fatal multi-thread race
+    # ("A command encoder is already encoding to this command buffer") when concurrent
+    # FastAPI requests hit translation and voice endpoints simultaneously.
+    # CPU is 100% thread-safe, robust, and matches BOLI's low-resource edge deployment budget.
     if torch.cuda.is_available():
         return torch.device("cuda")
     return torch.device("cpu")

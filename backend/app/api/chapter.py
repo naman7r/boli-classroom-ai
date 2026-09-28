@@ -17,7 +17,9 @@ SENTENCE_PATTERN = re.compile(r"([^।॥\?!.\n]+[।॥\?!.]?)")
 
 def is_usable_text(text: Optional[str]) -> bool:
     """Check if digitally extracted text is genuinely readable Hindi/text,
-    or corrupted by embedded CID font indices like (cid:52) or unmapped glyphs.
+    or corrupted by embedded CID font indices like (cid:52), unmapped glyphs,
+    or InDesign font ligature corruption (e.g. separated dependent matras,
+    halants with trailing whitespace, stacked matras, or publisher metadata).
     """
     if not text or not text.strip():
         return False
@@ -38,6 +40,24 @@ def is_usable_text(text: Optional[str]) -> bool:
     # If non-alphanumeric noise dominates the text
     total_len = len(text.strip())
     if total_len > 0 and (total_alpha / total_len) < 0.25:
+        return False
+
+    # 3. Detect InDesign / font-encoding corruption:
+    # 3a. Separated dependent vowel sign preceded by whitespace or at start of word.
+    # Specifically includes \u093F (ि / chhoti-ee) as well as \u093E-\u094C, \u0901-\u0903
+    if re.search(r"\s+[\u093E-\u094C\u093F\u0901-\u0903]", text):
+        return False
+
+    # 3b. Halant (virama) followed by whitespace (e.g. 'प् ाणी', 'कक् ा')
+    if re.search(r"\u094D\s+", text):
+        return False
+
+    # 3c. Conflicting / stacked dependent vowel matras (e.g. 'पािी', 'झकु ी', 'ह?ै')
+    if re.search(r"[\u093E-\u094C\u093F]{2,}", text):
+        return False
+
+    # 3d. InDesign print/reprint metadata embedded directly in the body text
+    if re.search(r"\.indd\b|Reprint\s+\d{4}-\d{2}|\b\d{1,2}:\d{2}(?::\d{2})?\s*[AP]M\b", text, re.IGNORECASE):
         return False
 
     return True
@@ -68,17 +88,64 @@ def ocr_pdf_page(page_obj=None, pypdfium_page=None) -> str:
 
 
 def clean_and_unwrap_text(raw_text: str) -> str:
-    """Join soft line wraps within paragraphs and strip textbook headers/page noise."""
+    """Join soft line wraps within paragraphs and strip textbook headers/page noise,
+    publisher metadata (.indd, Reprint, timestamps), and OCR margins.
+    """
     if not raw_text:
         return ""
     cleaned = re.sub(r"\(cid:\d+\)", "", raw_text)
     raw_lines = [l.strip() for l in cleaned.splitlines() if l.strip()]
 
+    # Standard boilerplate headings to drop
     boilerplate_pattern = re.compile(
         r"^(पाठ\s*\d+|अभ्यास|पृष्ठ\s*\d+|page\s*\d+|\d+|NCERT|JCERT)$",
         re.IGNORECASE,
     )
-    filtered_lines = [l for l in raw_lines if not boilerplate_pattern.match(l)]
+
+    # InDesign / textbook header & footer metadata patterns
+    metadata_drop_pattern = re.compile(
+        r"(\.indd\b|Reprint\s+\d{4}-\d{2}|\b\d{1,2}-[A-Za-z]+-\d{2,4}\s+\d{1,2}:\d{2}(?::\d{2})?\s*[AP]M\b|^\d+\s+(?:वीणा|NCERT|JCERT)\s*\|)",
+        re.IGNORECASE,
+    )
+
+    filtered_lines = []
+    for line in raw_lines:
+        line_clean = line.strip()
+        if not line_clean or boilerplate_pattern.match(line_clean):
+            continue
+
+        # If line contains metadata, strip the metadata portion
+        if metadata_drop_pattern.search(line_clean):
+            line_clean = re.sub(
+                r"\bReprint\s+\d{4}-\d{2}\b|\b(?:Unit\s+\d+\s+)?\d+\s+to\s+\d+\.indd.*|\.indd\s+\d+.*|\b\d{1,2}-[A-Za-z]+-\d{2,4}\s+\d{1,2}:\d{2}(?::\d{2})?\s*[AP]M\b|^\d+\s+(?:वीणा|NCERT|JCERT)\s*\|\s*(?:कक्षा\s*\d+)?",
+                "",
+                line_clean,
+                flags=re.IGNORECASE,
+            ).strip()
+
+        # If line has remaining valid Hindi/Latin content, keep it
+        if line_clean and (any("\u0900" <= c <= "\u097F" for c in line_clean) or any(c.isalpha() for c in line_clean)):
+            # Drop pure noise like single non-alphabet tokens or 'LA Cente os' OCR margin noise
+            if re.match(r"^[A-Za-z\s\.\*=-]{1,15}$", line_clean):
+                continue
+
+            # Strip leading non-alphabet/non-consonant symbols (e.g. '= BR. *', '५', '{', digits)
+            line_clean = re.sub(r"^[^\u0905-\u0939a-zA-Z]+", "", line_clean).strip()
+            # Strip trailing non-punctuation symbols (e.g. '{', '}')
+            line_clean = re.sub(r"[^\u0900-\u097F।॥\?!a-zA-Z\.]+$", "", line_clean).strip()
+
+            # Strip stray Latin OCR tokens mixed into Hindi lines (e.g. 'a 4 -')
+            if re.search(r"[a-zA-Z]", line_clean) and any("\u0900" <= c <= "\u097F" for c in line_clean):
+                line_clean = re.sub(r"\b[a-zA-Z0-9\-\.\*]+\b", "", line_clean).strip()
+                line_clean = re.sub(r"\s+", " ", line_clean).strip()
+
+            # Ignore short incomplete caption fragments that do not end in terminal punctuation
+            words = line_clean.split()
+            if not line_clean.endswith(("।", "॥", "?", "!", ".")) and len(words) < 4:
+                continue
+
+            if line_clean:
+                filtered_lines.append(line_clean)
 
     unwrapped = []
     buf = ""
@@ -110,6 +177,15 @@ def split_hindi_sentences(raw_text: str) -> List[str]:
     sentences = []
     for match in raw_matches:
         cleaned = re.sub(r"\s+", " ", match).strip()
+        # Filter out standalone metadata or noise lines
+        cleaned = re.sub(
+            r"\bReprint\s+\d{4}-\d{2}\b|\b(?:Unit\s+\d+\s+)?\d+\s+to\s+\d+\.indd.*|\.indd\s+\d+.*|\b\d{1,2}-[A-Za-z]+-\d{2,4}\s+\d{1,2}:\d{2}(?::\d{2})?\s*[AP]M\b",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        ).strip()
+        # Strip leading punctuation/symbols like '= BR. *', '५', digits followed by dot/dash
+        cleaned = re.sub(r"^[=\*\.\-\+\s५३|0-9a-zA-Z]+\s*[\.\*\-]?\s*", "", cleaned).strip()
         words = cleaned.split()
         # Require at least 1 word and 2 characters with readable Hindi/Latin script
         if len(words) >= 1 and len(cleaned) >= 2 and any(

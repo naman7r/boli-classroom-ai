@@ -35,8 +35,9 @@ FLORES_MAP = {
 
 
 def _get_device() -> torch.device:
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
+    # Use CUDA on Linux/Windows GPU systems.
+    # On macOS Apple Silicon (MPS), PyTorch MPS driver has a fatal multi-thread race
+    # under concurrent FastAPI requests. CPU is 100% thread-safe and reliable.
     if torch.cuda.is_available():
         return torch.device("cuda")
     return torch.device("cpu")

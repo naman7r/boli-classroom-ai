@@ -38,7 +38,8 @@ export function describeCapability({ translation, tts }) {
 }
 
 export function capabilityBadge(language) {
-  const translation = language?.translation ?? language;
+  const code = language?.code ?? (typeof language === "string" ? language : null);
+  const translation = language?.translation ?? (code && ENGINE_LABELS[code] ? "full" : language);
   if (translation === "full") return "AI translation";
   if (translation === "phrase_bank") return "Phrase bank only";
   return "Unavailable";
