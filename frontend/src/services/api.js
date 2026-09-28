@@ -7,7 +7,7 @@ export function getApiBase() {
     const custom = window.__BOLI_API_BASE__ || window.localStorage?.getItem("BOLI_API_BASE");
     if (custom) return custom.replace(/\/+$/, "");
     if (window.location.hostname.includes("vercel.app")) {
-      return "https://22b3bc168ae92b.lhr.life";
+      return "https://log-leonard-subcommittee-revealed.trycloudflare.com";
     }
   }
   return import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8001";
