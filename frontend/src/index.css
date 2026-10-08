@@ -1868,7 +1868,8 @@ body {
   letter-spacing: 0.02em;
 }
 
-.ws-sih-badge {
+.ws-sih-badge,
+.ws-mle-badge {
   font-size: 0.72rem;
   font-weight: 700;
   color: #718096;
@@ -2905,7 +2906,8 @@ body:not(.light-theme-override) .worksheet-document .ws-fln-row {
   opacity: 0.9;
 }
 
-.utility-badge-sih {
+.utility-badge-sih,
+.utility-badge-edition {
   background: linear-gradient(135deg, #fea619 0%, #f59e0b 100%);
   color: #2a1700;
   font-weight: 800;

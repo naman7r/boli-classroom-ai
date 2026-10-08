@@ -1,6 +1,6 @@
 # BOLI — The Complete Deep Dive & Viva Battle Manual (2026 Edition)
 
-> **SIH26042 · Government of Jharkhand · Smart Education · Software · Team LARPERS**  
+> **Mother Tongue-Based Multilingual Education · Smart Education · Software**  
 > **Everything, from absolute zero, for every single team member.**  
 > *Rule #1: If you read this document top-to-bottom once, no judge can corner you or catch you unprepared. Even if you wrote zero lines of code, you will understand every gear in this machine.*
 
@@ -343,8 +343,8 @@ When the judge says: *"Walk me through the pipeline from user input to final out
 > 3. `test_phase2_speech.py`: 50 cross-language audio synthesis tests confirming valid WAV headers and positive audio durations.
 > 4. `npm test`: 29 automated frontend unit tests testing capability labels and offline zip generation."
 
-#### Q22: "What is your roadmap after SIH?"
-> **Your Answer:** "1. Partner with the Jharkhand Education Project Council (JEPC) and the M-TALL program to pilot BOLI in 50 primary schools in West Singhbhum and Dumka.  
+#### Q22: "What is your roadmap and production deployment plan?"
+> **Your Answer:** "1. Partner with the Education Project Council and mother-tongue early education programs to pilot BOLI in primary schools.  
 > 2. Build a lightweight Android app for low-cost government tablets.  
 > 3. Use teacher-submitted corrections to curate India's first open-source, human-verified parallel corpus for Ho, Mundari, Kurukh, and Sadri."
 

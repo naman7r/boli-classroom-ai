@@ -20,7 +20,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
     setOfflineDownloadStatus("packaging");
     setTimeout(() => {
       const offlineBundle = {
-        solution: "BOLI Mother-Tongue Multilingual Classroom Aid (SIH 2026 Prototype)",
+        solution: "BOLI Mother-Tongue Multilingual Classroom Aid (Prototype)",
         version: "1.4.2-offline-release",
         generatedAt: new Date().toISOString(),
         targetHardware: {
@@ -152,7 +152,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
               <span className="utility-title-sep">·</span>
               <span className="utility-title-desc">Multilingual Primary Learning</span>
             </span>
-            <span className="utility-badge-sih">Primary Classroom Edition · Class 1–5</span>
+            <span className="utility-badge-edition">Primary Classroom Edition · Class 1–5</span>
           </div>
         </div>
 

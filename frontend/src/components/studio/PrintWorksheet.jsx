@@ -140,7 +140,7 @@ export default function PrintWorksheet({
               <div className="ws-logo" aria-hidden="true">बो</div>
               <div className="ws-title-group">
                 <div className="ws-jepc-seal">
-                  BOLI Prototype · Mother-Tongue Multilingual Classroom Aid (SIH 2026)
+                  BOLI Prototype · Mother-Tongue Multilingual Classroom Aid (Primary Education Edition)
                 </div>
                 <h1 className="ws-main-title">Multilingual Classroom Worksheet</h1>
                 <p className="ws-tagline">
@@ -150,7 +150,7 @@ export default function PrintWorksheet({
             </div>
             <div className="ws-meta-pills">
               <span className="ws-grade-badge">Class {grade}</span>
-              <span className="ws-sih-badge">BOLI MLE</span>
+              <span className="ws-mle-badge">BOLI MLE</span>
               <span className="ws-nipun-badge">FLN Practice</span>
             </div>
           </header>

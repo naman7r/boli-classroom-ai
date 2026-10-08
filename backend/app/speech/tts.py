@@ -1,6 +1,6 @@
 """MMS-TTS wrappers — real speech for Ho, Mundari, Kurukh, Sadri.
 
-Ported from research/sih_2026.ipynb cell 8 (the run that produced the
+Ported from acoustic research (the run that produced the
 four working wav files).
 
 Each checkpoint expects a specific script that is undocumented on its
@@ -120,7 +120,7 @@ def _load_mms(lang: str):
     """Load once per language, keep for the process lifetime (ARCHITECTURE.md §4)."""
     ckpt = MODELS[lang]
     model = VitsModel.from_pretrained(ckpt)
-    # SIH 2026 Acoustic Mastering for Low-Resource Tribal VITS:
+    # Production Acoustic Mastering for Low-Resource Tribal VITS:
     # 1. Natural human prosody: noise_scale 0.40 restores vocal warmth and intonation dynamics (eliminating robotic flat pitch).
     # 2. Stable phoneme rhythm: noise_scale_duration 0.50 provides natural syllable breathing without jitter.
     # 3. Stochastic duration off: Deterministic duration prediction for crisp syllable boundaries.

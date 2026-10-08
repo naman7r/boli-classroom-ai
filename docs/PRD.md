@@ -1,6 +1,6 @@
 # PRD — BOLI
 
-**SIH26042** · Government of Jharkhand · Smart Education · Team LARPERS
+**Primary Education Multilingual Initiative** · Mother-Tongue Learning Platform
 
 ## 1. Problem
 
@@ -13,8 +13,7 @@ gone by Class 5.
 
 No commercial tool addresses this. Google Translate's tribal-language
 coverage is near-zero, and where it exists (Santali) it is text-only —
-no speech output at all. See `/docs/research/google-gap.md` (screenshots
-from SIH deck) for evidence.
+no speech output at all. See `/docs/research/google-gap.md` for evidence.
 
 ## 2. Who this is for
 

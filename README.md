@@ -1,6 +1,6 @@
-# BOLI Personal — Mother-Tongue Learning & Speech Studio
+# BOLI — Mother-Tongue Learning & Multilingual Classroom Studio
 
-A modern AI classroom translation, pedagogical adaptation, and multilingual speech synthesis platform for primary schools in Jharkhand, supporting **Santali, Kurukh, Ho, Mundari, and Sadri**.
+A modern AI classroom translation, pedagogical adaptation, and multilingual speech synthesis platform for primary schools, supporting **Santali, Kurukh, Ho, Mundari, and Sadri**.
 
 ---
 

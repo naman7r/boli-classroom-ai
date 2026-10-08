@@ -50,7 +50,7 @@ code, read these files in this exact order:
 
 ## Quick context if you need the one-paragraph version
 
-BOLI is a hackathon prototype (SIH26042, Government of Jharkhand) that
+BOLI is a prototype that
 turns a Hindi primary-school lesson into simplified, translated,
 spoken output for children whose mother tongue isn't Hindi. Santali
 gets genuine AI translation (IndicTrans2) because it's the only one of

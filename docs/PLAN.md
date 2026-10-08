@@ -134,14 +134,14 @@ before Phase 9.
 - **Commit: "fix: /simplify failure no longer takes down the other languages"**
 
 ## Phase 9 — Styling pass
-- Apply the visual language from the SIH deck (navy/green palette,
+- Apply the visual language from the presentation deck (navy/green palette,
   card-based layout) so the app and the deck feel like one product
 - Mobile-first — the primary user is on a phone
 - **Commit: "style: visual pass matching deck design language"**
 
 ## Phase 10 — Deploy
 - Backend to Render/HF Space, frontend to Vercel/Netlify
-- Update all docs and the SIH deck with the permanent URLs
+- Update all docs and the presentation deck with the permanent URLs
 - Re-verify phase 1's contrast test against the *deployed* URL, not
   localhost — deployment often breaks something subtle (env vars,
   model download timeouts, static file paths)
