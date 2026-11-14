@@ -63,6 +63,20 @@ def translate(req: TranslateRequest):
     }
 
 
+def _prune_audio_cache(directory: Path, max_files: int = 100, keep: int = 50):
+    """Keep disk usage bounded by removing oldest audio files when count exceeds max_files."""
+    try:
+        files = sorted(directory.glob("*.wav"), key=lambda p: p.stat().st_mtime)
+        if len(files) > max_files:
+            for old_file in files[: len(files) - keep]:
+                try:
+                    old_file.unlink()
+                except OSError:
+                    pass
+    except Exception:
+        pass
+
+
 @router.post("/translate-and-speak")
 def translate_and_speak(req: TranslateAndSpeakRequest):
     if req.target not in SUPPORTED_TARGETS:
@@ -106,6 +120,8 @@ def translate_and_speak(req: TranslateAndSpeakRequest):
             file_path = static_dir / filename
             with open(file_path, "wb") as f:
                 f.write(wav_bytes)
+
+            _prune_audio_cache(static_dir)
 
             audio_url = f"/audio/{filename}"
             audio_base64 = base64.b64encode(wav_bytes).decode("ascii")

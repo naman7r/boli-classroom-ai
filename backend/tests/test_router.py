@@ -10,7 +10,15 @@ Tests 24 arbitrary unseen sentences across:
 - Multi-paragraph newline preservation
 """
 
+import os
+import sys
 import time
+from pathlib import Path
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+if str(_BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_DIR))
+
 from dotenv import load_dotenv
 load_dotenv()
 

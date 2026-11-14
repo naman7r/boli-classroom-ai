@@ -1,7 +1,15 @@
 """End-to-end smoke test covering all BOLI platform endpoints and pipelines."""
 
-import wave
 import io
+import os
+import sys
+import wave
+from pathlib import Path
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+if str(_BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_DIR))
+
 from fastapi.testclient import TestClient
 from main import app
 

@@ -49,6 +49,13 @@ export default function PrintWorksheet({
   useEffect(() => {
     if (!isOpen) return;
 
+    function handleKeyDown(e) {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+
     // Use current URL or API base for audio link
     const audioUrl =
       window.location.origin +
@@ -62,7 +69,11 @@ export default function PrintWorksheet({
     })
       .then((url) => setQrDataUrl(url))
       .catch((err) => console.error("QR Code error:", err));
-  }, [isOpen, grade]);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, grade, onClose]);
 
   if (!isOpen) return null;
 

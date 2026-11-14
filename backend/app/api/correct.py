@@ -26,8 +26,17 @@ def correct(req: CorrectionRequest):
         )
     if not req.corrected.strip():
         raise HTTPException(400, "The corrected text is empty.")
+    if len(req.corrected) > 5000 or len(req.original) > 5000:
+        raise HTTPException(400, "Correction text exceeds limit of 5,000 characters.")
 
     with closing(db.connect()) as conn:
+        if req.lesson_id:
+            lesson_exists = conn.execute(
+                "SELECT 1 FROM lessons WHERE id = ?", (req.lesson_id,)
+            ).fetchone()
+            if not lesson_exists:
+                raise HTTPException(404, f"Lesson ID {req.lesson_id} not found.")
+
         cur = conn.execute(
             "INSERT INTO corrections (lesson_id, lang_code, original_text, "
             "corrected_text) VALUES (?, ?, ?, ?)",

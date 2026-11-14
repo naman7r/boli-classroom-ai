@@ -1,10 +1,7 @@
 import { useEffect, useMemo } from "react";
 
-// A player for one language's audio.
-//
-// The object URL is created during render and revoked when the blob
-// changes or the player unmounts, so a teacher stepping back and forth
-// through a lesson does not leak a wav per visit.
+// A clean, accessible player for classroom audio playback.
+// Object URL is created during render and revoked when unmounted or changed.
 export default function AudioPlayer({ blob, label, autoPlay = false }) {
   const url = useMemo(() => URL.createObjectURL(blob), [blob]);
 
@@ -20,8 +17,17 @@ export default function AudioPlayer({ blob, label, autoPlay = false }) {
   };
 
   return (
-    <audio controls autoPlay={autoPlay} src={url} aria-label={label} onPlay={handlePlay}>
-      Your browser cannot play audio.
-    </audio>
+    <div className="audio-player-wrapper" style={{ marginTop: "0.4rem" }}>
+      <audio
+        controls
+        autoPlay={autoPlay}
+        src={url}
+        aria-label={label}
+        onPlay={handlePlay}
+        style={{ width: "100%", display: "block" }}
+      >
+        Your browser cannot play audio.
+      </audio>
+    </div>
   );
 }

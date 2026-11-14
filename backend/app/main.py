@@ -42,11 +42,24 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+_DEFAULT_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://boli-classroom.vercel.app",
+]
+_extra_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
+_origins = _DEFAULT_ORIGINS + _extra_origins
+if os.getenv("ALLOW_ALL_ORIGINS", "false").lower() == "true":
+    _origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
+    allow_origins=_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_credentials=True if _origins != ["*"] else False,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=[
         "X-Target-Text",

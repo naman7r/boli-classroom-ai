@@ -547,7 +547,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                 <div style={{ fontSize: "11px", color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                   Storage Size on SD Card
                 </div>
-                <div style={{ fontSize: "14px", fontWeight: "700", color: "#a855f7", marginTop: "4px" }}>
+                <div style={{ fontSize: "14px", fontWeight: "700", color: "#16a34a", marginTop: "4px" }}>
                   &lt; 15 MB Total
                 </div>
                 <div style={{ fontSize: "11px", color: "#71717a", marginTop: "2px" }}>
@@ -747,10 +747,10 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
               </div>
 
               {/* FAQ Section */}
-              <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #a855f7" }}>
+              <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #0d9488" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                  <span className="material-symbols-outlined text-sm" style={{ color: "#c084fc" }}>quiz</span>
-                  <strong style={{ fontSize: "14px", color: "#d8b4fe" }}>4. अक्सर पूछे जाने वाले प्रश्न (FAQ)</strong>
+                  <span className="material-symbols-outlined text-sm" style={{ color: "#2dd4bf" }}>quiz</span>
+                  <strong style={{ fontSize: "14px", color: "#ccfbf1" }}>4. अक्सर पूछे जाने वाले प्रश्न (FAQ)</strong>
                 </div>
                 <div style={{ display: "grid", gap: "8px", fontSize: "12px", color: "#e4e4e7", lineHeight: 1.5 }}>
                   <div>
@@ -929,7 +929,7 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
                     <div><strong>प्रस्तावित DIET विशेषज्ञ समीक्षा (Proposed Expert Review):</strong> भविष्य में जिला शिक्षा प्रशिक्षण संस्थान (DIET) भाषा प्रकोष्ठों द्वारा ध्वन्यात्मक समीक्षा का खाका।</div>
                   </div>
                   <div style={{ display: "flex", gap: "10px" }}>
-                    <span style={{ background: "#9333ea", color: "#fff", padding: "1px 6px", borderRadius: "4px", fontWeight: "700", height: "fit-content" }}>स्तर 3</span>
+                    <span style={{ background: "#0d9488", color: "#fff", padding: "1px 6px", borderRadius: "4px", fontWeight: "700", height: "fit-content" }}>स्तर 3</span>
                     <div><strong>मासिक ऑफ़लाइन वितरण (Proposed Offline SD Card Sync):</strong> स्वीकृत शब्दों को संकलित कर क्लस्टर बैठकों में ऑफ़लाइन SD कार्ड द्वारा वितरित करने की योजना।</div>
                   </div>
                 </div>
@@ -947,10 +947,10 @@ export default function TopUtilityBar({ activeLang, onToggleLang }) {
               </div>
 
               {/* Section 4: Proposed FLN Evaluation Protocol */}
-              <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #a855f7" }}>
+              <div style={{ background: "#27272a", borderRadius: "10px", padding: "14px 16px", borderLeft: "4px solid #ea580c" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                  <span className="material-symbols-outlined text-sm" style={{ color: "#c084fc" }}>analytics</span>
-                  <strong style={{ fontSize: "14px", color: "#d8b4fe" }}>4. प्रस्तावित प्रभाव मापन रूपरेखा (Proposed 30-Day Evaluation Blueprint)</strong>
+                  <span className="material-symbols-outlined text-sm" style={{ color: "#fb923c" }}>analytics</span>
+                  <strong style={{ fontSize: "14px", color: "#ffedd5" }}>4. प्रस्तावित प्रभाव मापन रूपरेखा (Proposed 30-Day Evaluation Blueprint)</strong>
                 </div>
                 <p style={{ margin: 0, fontSize: "12px", color: "#d4d4d8", lineHeight: 1.5 }}>
                   अनुशंसित फील्ड ट्रायल रूपरेखा: <strong>WCPM (Words Correct Per Minute)</strong> तथा <strong>EGRA</strong> स्तर पर मातृभाषा माध्यम से समझ के प्रभाव के मूल्यांकन का प्रस्तावित प्रारूप।

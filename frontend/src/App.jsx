@@ -1,14 +1,15 @@
-import { useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import Capture from "./screens/Capture";
 import LanguageSelect from "./screens/LanguageSelect";
 import Result from "./screens/Result";
 import Logo from "./components/Logo";
 import TopUtilityBar from "./components/TopUtilityBar";
-import QuizLab from "./components/quiz/QuizLab";
 import GlobalFooter from "./components/GlobalFooter";
 import ForestBackground from "./components/ForestBackground";
-import LiveClassroom from "./components/LiveClassroom";
-import Flashcards from "./components/Flashcards";
+
+const QuizLab = lazy(() => import("./components/quiz/QuizLab"));
+const LiveClassroom = lazy(() => import("./components/LiveClassroom"));
+const Flashcards = lazy(() => import("./components/Flashcards"));
 
 const STEPS = [
   { num: 1, label: "Capture Lesson" },
@@ -268,23 +269,29 @@ export default function App() {
         )}
 
         {activeTab === "live" && (
-          <LiveClassroom
-            onLoadIntoStudio={(text) => {
-              setHindiText(text);
-              setChapterSentences([]);
-              setActiveTab("studio");
-              go(0);
-            }}
-            currentGrade={grade}
-          />
+          <Suspense fallback={<div className="panel" style={{ textAlign: "center", padding: "3rem" }}>Loading Live Classroom…</div>}>
+            <LiveClassroom
+              onLoadIntoStudio={(text) => {
+                setHindiText(text);
+                setChapterSentences([]);
+                setActiveTab("studio");
+                go(0);
+              }}
+              currentGrade={grade}
+            />
+          </Suspense>
         )}
 
         {activeTab === "flashcards" && (
-          <Flashcards lessonText={hindiText} currentGrade={grade} />
+          <Suspense fallback={<div className="panel" style={{ textAlign: "center", padding: "3rem" }}>Loading Flashcards…</div>}>
+            <Flashcards lessonText={hindiText} currentGrade={grade} />
+          </Suspense>
         )}
 
         {activeTab === "quiz" && (
-          <QuizLab lessonText={hindiText} currentGrade={grade} />
+          <Suspense fallback={<div className="panel" style={{ textAlign: "center", padding: "3rem" }}>Loading Practice Quiz…</div>}>
+            <QuizLab lessonText={hindiText} currentGrade={grade} />
+          </Suspense>
         )}
       </main>
 

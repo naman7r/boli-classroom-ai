@@ -197,6 +197,10 @@ def split_hindi_sentences(raw_text: str) -> List[str]:
     return sentences
 
 
+MAX_CHAPTER_BYTES = 25 * 1024 * 1024  # 25 MB max file upload
+MAX_EXTRACT_PAGES = 15                # 15 pages max to protect CPU and memory
+
+
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     """Extract text from PDF using digital extraction with automatic OCR fallback
     per-page whenever fonts are unmapped (CID artifacts) or pages are scanned.
@@ -220,6 +224,8 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
         with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
             plumber_worked = True
             for idx, page in enumerate(pdf.pages):
+                if idx >= MAX_EXTRACT_PAGES:
+                    break
                 raw_page_text = page.extract_text() or ""
                 pdfium_page = (
                     pdfium_doc[idx]
@@ -245,7 +251,8 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
     # 2. If pdfplumber was not available, use pypdfium2 directly
     if not plumber_worked and pdfium_doc:
         try:
-            for idx in range(len(pdfium_doc)):
+            total_pages = min(len(pdfium_doc), MAX_EXTRACT_PAGES)
+            for idx in range(total_pages):
                 pdfium_page = pdfium_doc[idx]
                 text_page = pdfium_page.get_textpage()
                 raw_page_text = text_page.get_text_range() or ""
@@ -276,6 +283,9 @@ async def extract_chapter(file: UploadFile = File(...)):
 
     if not file_bytes:
         raise HTTPException(400, "The uploaded file is empty.")
+
+    if len(file_bytes) > MAX_CHAPTER_BYTES:
+        raise HTTPException(413, "Uploaded file exceeds maximum size limit of 25MB.")
 
     raw_text = ""
     if filename.endswith(".txt"):

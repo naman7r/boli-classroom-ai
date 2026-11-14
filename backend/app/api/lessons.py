@@ -24,6 +24,8 @@ class LessonRequest(BaseModel):
 def create_lesson(req: LessonRequest):
     if not req.source_text.strip():
         raise HTTPException(400, "The lesson text is empty.")
+    if len(req.source_text) > 20000:
+        raise HTTPException(400, "The lesson text is too long (max 20,000 characters).")
     if req.source_type not in SOURCE_TYPES:
         raise HTTPException(
             400,

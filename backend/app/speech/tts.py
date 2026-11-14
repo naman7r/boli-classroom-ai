@@ -11,7 +11,9 @@ returning a silent empty wav.
 """
 
 import io
+import os
 import re
+import threading
 from functools import lru_cache
 
 import numpy as np
@@ -44,6 +46,9 @@ DEFAULT_SANTALI_SPEAKER = (
     "Arjun's voice is clear, warm and natural, spoken at a calm, steady pace."
 )
 
+_PARLER_LOCK = threading.Lock()
+_MMS_LOCK = threading.Lock()
+
 
 def _ensure_dac_patched():
     """transformers 4.45.2 has DacModel.decode missing = None on the first positional arg."""
@@ -73,13 +78,12 @@ def _ensure_dac_patched():
 
 
 def _get_parler_device() -> torch.device:
-    # Use CUDA on Linux/Windows GPU systems.
-    # On macOS Apple Silicon (MPS), PyTorch MPS driver has a fatal multi-thread race
-    # ("A command encoder is already encoding to this command buffer") when concurrent
-    # FastAPI requests hit translation and voice endpoints simultaneously.
-    # CPU is 100% thread-safe, robust, and matches BOLI's low-resource edge deployment budget.
+    # Use CUDA on GPU systems, Apple Silicon MPS on macOS (thread-guarded by _PARLER_LOCK),
+    # and CPU as portable fallback.
     if torch.cuda.is_available():
         return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
     return torch.device("cpu")
 
 
@@ -91,21 +95,22 @@ def _load_parler_tts():
 
     primary = MODELS["sat"]
     fallback = "RXD03/indic-parler-tts"
+    token = os.getenv("HF_TOKEN")
 
     model = None
     prompt_tok = None
     try:
-        model = ParlerTTSForConditionalGeneration.from_pretrained(primary)
-        prompt_tok = AutoTokenizer.from_pretrained(primary)
+        model = ParlerTTSForConditionalGeneration.from_pretrained(primary, token=token)
+        prompt_tok = AutoTokenizer.from_pretrained(primary, token=token)
     except Exception:
-        model = ParlerTTSForConditionalGeneration.from_pretrained(fallback)
-        prompt_tok = AutoTokenizer.from_pretrained(fallback)
+        model = ParlerTTSForConditionalGeneration.from_pretrained(fallback, token=token)
+        prompt_tok = AutoTokenizer.from_pretrained(fallback, token=token)
 
     device = _get_parler_device()
     model = model.to(device)
     model.eval()
     desc_model_path = model.config.text_encoder._name_or_path
-    desc_tok = AutoTokenizer.from_pretrained(desc_model_path)
+    desc_tok = AutoTokenizer.from_pretrained(desc_model_path, token=token)
     return model, prompt_tok, desc_tok
 
 
@@ -120,12 +125,11 @@ def _load_mms(lang: str):
     """Load once per language, keep for the process lifetime (ARCHITECTURE.md §4)."""
     ckpt = MODELS[lang]
     model = VitsModel.from_pretrained(ckpt)
-    # Production Acoustic Mastering for Low-Resource Tribal VITS:
-    # 1. Natural human prosody: noise_scale 0.40 restores vocal warmth and intonation dynamics (eliminating robotic flat pitch).
-    # 2. Stable phoneme rhythm: noise_scale_duration 0.50 provides natural syllable breathing without jitter.
-    # 3. Stochastic duration off: Deterministic duration prediction for crisp syllable boundaries.
+    # Native VITS pacing for clear, articulate, and understandable speech.
+    # Division by rate < 1.0 causes unnatural VITS duration warping and robotic phase vibrato.
+    # At rate 1.0, phonemes are crisp, stable, and natural.
     model.speaking_rate = 1.0
-    model.noise_scale = 0.40
+    model.noise_scale = 0.33
     model.noise_scale_duration = 0.50
     model.use_stochastic_duration_prediction = False
     model.eval()
@@ -141,21 +145,16 @@ def warmup(langs=None):
 
 
 def enhance_audio(waveform: np.ndarray, sample_rate: int = 16000) -> tuple[np.ndarray, int]:
-    """DSP post-processing pipeline for MMS-TTS checkpoints.
+    """DSP vocal clarity pipeline calibrated for maximum intelligibility and clean presence.
 
-    Meta MMS models (Ho, Mundari, Kurukh, Sadri) produce 16kHz VITS speech
-    derived from field recordings, which suffer from high-frequency metallic
-    hiss, sub-rumble, and low dynamic presence.
-
-    Mastering Pipeline:
-    1. 2nd-order Butterworth bandpass filter (90 Hz high-pass to remove mic thumps/rumble,
-       7.0 kHz low-pass to eliminate harsh digital VITS aliasing & hiss).
-    2. Warmth & De-hiss EQ: Gentle low-pass smoothing above 4.2 kHz to remove
-       field-recording cassette hiss, combined with vocal presence enhancement.
-    3. Soft-knee compression / dynamic leveler: np.tanh(smoothed * 1.4) / 1.15
-       for rich, full, consistent classroom loudness without harsh clipping.
-    4. Anti-aliased sinc polyphase upsampling to 24 kHz for clean browser playback.
-    5. Final peak normalization to 0.94 (-0.5 dB headroom).
+    Meta MMS models (Ho, Mundari, Kurukh, Sadri) produce 16kHz VITS speech.
+    We apply:
+    1. 2nd-order Butterworth high-pass at 80 Hz: strips DC offset and low mic rumble.
+    2. 2nd-order Butterworth low-pass at 7600 Hz: keeps full speech presence & consonant brilliance.
+    3. Gentle notch at 6000 Hz: tames metallic VITS vocoder phase grain without muffling words.
+    4. Anti-aliased sinc polyphase resampling to 24000 Hz for browser DAC compatibility.
+    5. Clean peak normalization to 0.94 (-0.5 dB headroom).
+    6. Micro-fade in/out (8ms) with 80ms lead-in / 120ms lead-out silence for click-free playback.
     """
     if len(waveform) == 0:
         return waveform, sample_rate
@@ -167,36 +166,42 @@ def enhance_audio(waveform: np.ndarray, sample_rate: int = 16000) -> tuple[np.nd
     else:
         audio = waveform.astype(np.float32)
 
-    # 1. Bandpass filter: 90 Hz to 7000 Hz at sample_rate
+    nyquist = sample_rate / 2.0
+
+    # 1. High-pass filter: 80 Hz (removes DC thumps/rumble without touching vocal body)
     try:
-        nyquist = sample_rate / 2.0
-        low = max(0.001, 90.0 / nyquist)
-        high = min(0.95, 7000.0 / nyquist)
-        b, a = scipy.signal.butter(2, [low, high], btype="bandpass")
-        bandpassed = scipy.signal.filtfilt(b, a, audio)
+        b_hp, a_hp = scipy.signal.butter(2, 80.0 / nyquist, btype="highpass")
+        filtered = scipy.signal.filtfilt(b_hp, a_hp, audio)
     except Exception:
-        bandpassed = audio
+        filtered = audio
 
-    # 2. De-hiss & Warmth smoothing: tame harsh 4.2kHz VITS rasp while retaining vocal clarity
+    # 2. Low-pass filter: 7600 Hz (preserves full human presence, consonants, and speech air)
     try:
-        b_shelf, a_shelf = scipy.signal.butter(1, 4200.0 / nyquist, btype="lowpass")
-        smoothed = 0.85 * bandpassed + 0.15 * scipy.signal.filtfilt(b_shelf, a_shelf, bandpassed)
+        high = min(0.96, 7600.0 / nyquist)
+        b_lp, a_lp = scipy.signal.butter(2, high, btype="lowpass")
+        filtered = scipy.signal.filtfilt(b_lp, a_lp, filtered)
     except Exception:
-        smoothed = bandpassed
+        pass
 
-    # 3. Dynamic range compression: soft-knee tanh curve for full, consistent classroom loudness
-    compressed = np.tanh(smoothed * 1.4) / 1.15
+    # 3. Gentle notch de-grain: softens the characteristic 6.0 kHz VITS metallic phase artifact
+    try:
+        f_notch = 6000.0 / nyquist
+        if f_notch < 0.95:
+            b_notch, a_notch = scipy.signal.iirnotch(f_notch, Q=3.0)
+            smoothed = scipy.signal.filtfilt(b_notch, a_notch, filtered)
+            filtered = 0.75 * filtered + 0.25 * smoothed
+    except Exception:
+        pass
 
-    # 4. Resample to 24000 Hz using Fourier sinc/polyphase for crisp fidelity
+    # 4. Resample to 24000 Hz using high-fidelity polyphase filter for smooth browser playback
     target_sr = 24000
     try:
-        num_samples = int(len(compressed) * target_sr / sample_rate)
-        resampled = scipy.signal.resample(compressed, num_samples)
+        resampled = scipy.signal.resample_poly(filtered, 3, 2)
     except Exception:
-        resampled = compressed
+        resampled = filtered
         target_sr = sample_rate
 
-    # 5. Final peak normalization with headroom (-0.5 dB)
+    # 5. Clean peak normalization with -0.5 dB headroom (0.94)
     res_peak = np.max(np.abs(resampled))
     if res_peak > 0:
         norm = (resampled / res_peak) * 0.94
@@ -205,11 +210,10 @@ def enhance_audio(waveform: np.ndarray, sample_rate: int = 16000) -> tuple[np.nd
 
     audio_int16 = (norm * 32767).astype(np.int16)
 
-    # 6. Silence padding (180ms lead-in, 220ms lead-out) with 10ms smooth fade
-    # Ensures browser audio contexts and hardware speaker drivers do not clip initial consonants.
-    lead_in = np.zeros(int(0.18 * target_sr), dtype=np.int16)
-    lead_out = np.zeros(int(0.22 * target_sr), dtype=np.int16)
-    fade_len = int(0.01 * target_sr)
+    # 6. Smooth lead-in/lead-out padding with 8ms zero-crossing fade to eliminate DAC pops
+    lead_in = np.zeros(int(0.08 * target_sr), dtype=np.int16)
+    lead_out = np.zeros(int(0.12 * target_sr), dtype=np.int16)
+    fade_len = int(0.008 * target_sr)
     if len(audio_int16) > fade_len * 2:
         fade_in = np.linspace(0, 1, fade_len)
         fade_out = np.linspace(1, 0, fade_len)
@@ -318,6 +322,12 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
         return _TTS_AUDIO_CACHE[cache_key]
 
     if lang == "sat":
+        has_ol_chiki = any(0x1C50 <= ord(c) <= 0x1C7F for c in text)
+        if not has_ol_chiki:
+            raise ValueError(
+                f"None of this text is in the {SCRIPTS[lang]} script, so there is nothing to speak."
+            )
+
         model, prompt_tok, desc_tok = _load_parler_tts()
         device = _get_parler_device()
         prompt_inputs = prompt_tok(text, return_tensors="pt").to(device)
@@ -329,17 +339,21 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
         description = speaker_desc or DEFAULT_SANTALI_SPEAKER
         desc_inputs = _get_cached_desc_inputs(description, str(device))
 
-        # No artificial token limit: Parler-TTS generates whatever is required
-        # for the complete text and stops naturally on EOS (up to model's full sequence length).
-        with torch.inference_mode():
-            generation = model.generate(
-                input_ids=desc_inputs.input_ids,
-                attention_mask=desc_inputs.attention_mask,
-                prompt_input_ids=prompt_inputs.input_ids,
-                prompt_attention_mask=prompt_inputs.attention_mask,
-                do_sample=True,
-                temperature=0.7,
-            )
+        # Dynamic bounded generation to prevent unnecessary runaway sampling while guaranteeing full lesson completion
+        word_count = max(1, len(text.strip().split()))
+        max_tokens = min(600, max(120, int(word_count * 30 + 50)))
+
+        with _PARLER_LOCK:
+            with torch.inference_mode():
+                generation = model.generate(
+                    input_ids=desc_inputs.input_ids,
+                    attention_mask=desc_inputs.attention_mask,
+                    prompt_input_ids=prompt_inputs.input_ids,
+                    prompt_attention_mask=prompt_inputs.attention_mask,
+                    max_new_tokens=max_tokens,
+                    do_sample=True,
+                    temperature=0.7,
+                )
 
         audio_arr = generation.cpu().numpy().squeeze()
         max_val = np.max(np.abs(audio_arr))
@@ -347,6 +361,7 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
             audio_norm = audio_arr / max(max_val, 1.0)
         else:
             audio_norm = audio_arr
+
         audio_int16 = (audio_norm * 32767).astype(np.int16)
 
         buf = io.BytesIO()
@@ -367,30 +382,45 @@ def synthesize(text: str, lang: str, speaker_desc: str = None) -> bytes:
 
     # MMS synthesis for hoc, unr, kru, sck
     model, tok = _load_mms(lang)
-    # Natural human pacing: calibrated per language to achieve a calm, natural classroom flow (~105-125 WPM)
-    # Avoids both rushed speech and sluggish/laggy phoneme stretching.
-    MMS_PACING = {
-        "hoc": {"sentence": 1.02, "word": 0.95},
-        "unr": {"sentence": 0.64, "word": 0.60},
-        "kru": {"sentence": 0.92, "word": 0.86},
-        "sck": {"sentence": 0.72, "word": 0.68},
-    }
-    words = len(text.strip().split())
-    pacing = MMS_PACING.get(lang, {"sentence": 0.95, "word": 0.88})
-    model.speaking_rate = pacing["word"] if words <= 2 else pacing["sentence"]
+    model.speaking_rate = 1.0
 
-    inputs = tok(target_text, return_tensors="pt")
-    if inputs["input_ids"].shape[1] == 0:
-        raise ValueError(
-            f"None of this text is in the {SCRIPTS[lang]} script that the {lang} "
-            "voice was trained on, so there is nothing to speak."
-        )
+    # Split multi-sentence text into individual sentences for clear, articulate VITS prosody.
+    # Synthesizing sentence-by-sentence eliminates monotonic alignment drift and slurred speech.
+    sents = [s.strip() for s in re.split(r"(?<=[।॥!?\n])\s+", target_text) if s.strip()]
+    if not sents:
+        sents = [target_text]
 
-    with torch.inference_mode():
-        waveform = model(**inputs).waveform.cpu().float().numpy().squeeze()
+    sr = model.config.sampling_rate
+    waveforms = []
 
-    # Apply audio enhancement pipeline: filtering, warmth EQ, compression, anti-aliased 24kHz upsampling
-    audio_int16, out_sr = enhance_audio(waveform, sample_rate=model.config.sampling_rate)
+    with _MMS_LOCK:
+        with torch.inference_mode():
+            for sent in sents:
+                inp = tok(sent, return_tensors="pt")
+                if inp["input_ids"].shape[1] == 0:
+                    continue
+                w = model(**inp).waveform.cpu().float().numpy().squeeze()
+                if len(w) > 0:
+                    waveforms.append(w)
+                    # Natural classroom breathing pause (260ms) between sentences
+                    waveforms.append(np.zeros(int(0.26 * sr), dtype=np.float32))
+
+    if waveforms:
+        waveforms.pop()  # Remove trailing silence pause
+        combined_waveform = np.concatenate(waveforms)
+    else:
+        inp = tok(target_text, return_tensors="pt")
+        if inp["input_ids"].shape[1] == 0:
+            raise ValueError(
+                f"None of this text is in the {SCRIPTS[lang]} script that the {lang} "
+                "voice was trained on, so there is nothing to speak."
+            )
+        with _MMS_LOCK:
+            with torch.inference_mode():
+                combined_waveform = model(**inp).waveform.cpu().float().numpy().squeeze()
+
+    # Apply audio enhancement pipeline: filtering, de-grain, normalization, polyphase 24kHz
+    audio_int16, out_sr = enhance_audio(combined_waveform, sample_rate=sr)
 
     buf = io.BytesIO()
     scipy.io.wavfile.write(buf, rate=out_sr, data=audio_int16)

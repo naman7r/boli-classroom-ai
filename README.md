@@ -63,8 +63,10 @@ cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-# Run test suite
-python tests/test_router.py
+
+# Run complete smoke & evaluation test suites
+python tests/test_e2e_smoke.py
+python tests/test_chapter_asr.py
 ```
 
 ### Frontend
@@ -78,7 +80,17 @@ npm run dev
 
 ---
 
-## Honest Product Truthfulness Policy
-1. **Santali & Kurukh** utilize deep neural models trained on parallel corpora.
-2. **Ho, Mundari, and Sadri** utilize linguistic transfer engines reflecting authentic regional pronouns, copulas, and verbal aspects. They are never falsely labeled as end-to-end neural translation.
-3. No native speaker validation is claimed until certified by tribal educators in the field.
+## Judge & Evaluator Guide
+
+For SIH evaluators, jury panels, and technical reviewers:
+- **Comprehensive Viva & Technical Defense:** [VIVA_MANUAL_2026.md](docs/VIVA_MANUAL_2026.md) *(Covers the 22 hardest jury questions, North Munda syntax breakdown, and empirical benchmark data).*
+- **System Architecture & Dataflow:** [ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **Product Requirements & Non-Violable Truthfulness Rules:** [PRD.md](docs/PRD.md) & [RULES.md](docs/RULES.md)
+- **Data Dictionary & Schema Specifications:** [DATA_DICTIONARY.md](docs/DATA_DICTIONARY.md)
+
+---
+
+## Product Truthfulness & Linguistic Bounds
+1. **Santali and Kurukh** use neural translation models evaluated on unseen test sets.
+2. **Ho, Mundari, and Sadri** use deterministic linguistic transfer engines that map regional pronouns, copulas, and verbal aspects. They are not labeled as neural translation.
+3. Native speaker validation is pending field verification with tribal educators in Jharkhand.

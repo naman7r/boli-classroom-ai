@@ -33,3 +33,8 @@ CREATE TABLE IF NOT EXISTS corrections (
     corrected_text TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Fast lookup indexes for classroom dashboards, teacher reviews, and lesson histories
+CREATE INDEX IF NOT EXISTS idx_corrections_lesson_id ON corrections(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_corrections_created_at ON corrections(created_at);
+CREATE INDEX IF NOT EXISTS idx_lessons_created_at ON lessons(created_at);

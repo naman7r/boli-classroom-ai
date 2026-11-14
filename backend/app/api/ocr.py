@@ -38,6 +38,10 @@ def _binary() -> str:
     )
 
 
+MAX_OCR_BYTES = 15 * 1024 * 1024  # 15 MB max file upload
+MAX_OCR_PAGES = 10                # 10 pages max for single OCR run
+
+
 @router.post("/ocr")
 async def ocr(file: UploadFile = File(...)):
     pytesseract.pytesseract.tesseract_cmd = _binary()
@@ -45,6 +49,9 @@ async def ocr(file: UploadFile = File(...)):
         file_bytes = await file.read()
     except Exception as e:
         raise HTTPException(400, f"Could not read uploaded file: {e}")
+
+    if len(file_bytes) > MAX_OCR_BYTES:
+        raise HTTPException(413, "Uploaded file exceeds maximum size limit of 15MB.")
 
     filename = (file.filename or "").lower()
     images = []
@@ -55,7 +62,9 @@ async def ocr(file: UploadFile = File(...)):
             import pypdfium2 as pdfium
 
             doc = pdfium.PdfDocument(file_bytes)
-            for page in doc:
+            for idx, page in enumerate(doc):
+                if idx >= MAX_OCR_PAGES:
+                    break
                 images.append(page.render(scale=2.5).to_pil())
         except Exception as e:
             raise HTTPException(400, f"Could not parse uploaded PDF for OCR: {e}")

@@ -23,7 +23,13 @@ distribution and both leak Meetei Mayek. See the note in the assertions.
 """
 
 import io
+import os
 import sys
+from pathlib import Path
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+if str(_BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_DIR))
 
 from dotenv import load_dotenv
 

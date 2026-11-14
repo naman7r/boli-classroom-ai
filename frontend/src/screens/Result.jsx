@@ -68,22 +68,30 @@ export default function Result({
           })
           .catch(() => {});
 
-        // 1. Kick off pedagogical simplification in BACKGROUND (never blocks translation)
-        simplify(fullLessonText, grade)
-          .then((res) => {
-            if (!cancelled) setAdapted(res);
-          })
-          .catch((e) => {
-            if (!cancelled) {
-              console.warn("Pedagogy simplification failed:", e);
-              setSimplifyError(e.message);
-            }
-          });
+        // 1. Pedagogical simplification for primary children
+        setStage(`Adapting lesson vocabulary for Class ${grade} children…`);
+        let adaptedResult = null;
+        try {
+          adaptedResult = await simplify(fullLessonText, grade);
+          if (!cancelled && adaptedResult) {
+            setAdapted(adaptedResult);
+          }
+        } catch (e) {
+          if (!cancelled) {
+            console.warn("Pedagogy simplification failed:", e);
+            setSimplifyError(e.message);
+          }
+        }
 
         // 2. Handle Single Sentence Mode (Instantaneous & Streaming)
         if (sentenceList.length === 1) {
-          const currentText = sentenceList[0];
-          setStage(`Translating lesson…`);
+          // Translate ALL simplified sentences of the lesson together so no lines are ignored.
+          const adaptedSentences = adaptedResult?.adapted_hindi || [];
+          const currentText =
+            adaptedSentences.length > 0
+              ? adaptedSentences.join(" ")
+              : sentenceList[0];
+          setStage(`Translating simplified lesson for children…`);
 
           // Fast parallel translation: stream each language into state as soon as it resolves
           const transPromises = picked.map(async (language) => {
@@ -105,7 +113,10 @@ export default function Result({
                 return [...filtered, transObj];
               });
 
-              // Synthesize full voice speech as soon as translation arrives
+              // Synthesize full voice speech as soon as translation arrives.
+              // Fast MMS checkpoints (Ho, Mundari, Kurukh, Sadri ~200ms) run immediately.
+              // Santali (Indic Parler-TTS ~5s on CPU) is scheduled with a 200ms window so
+              // MMS models finish first without thread starvation.
               if (
                 language.tts === "full" &&
                 !speaksWithoutPedagogy(language) &&
@@ -115,23 +126,27 @@ export default function Result({
                   ...prev,
                   [language.code]: { kind: "loading" },
                 }));
-                speak(res.translated, language.code)
-                  .then((audioRes) => {
-                    if (!cancelled) {
-                      setAudio((prev) => ({
-                        ...prev,
-                        [language.code]: { ...audioRes, text: res.translated },
-                      }));
-                    }
-                  })
-                  .catch((err) => {
-                    if (!cancelled) {
-                      setAudio((prev) => ({
-                        ...prev,
-                        [language.code]: { kind: "error", error: err.message },
-                      }));
-                    }
-                  });
+                const ttsDelay = language.code === "sat" ? 220 : 0;
+                setTimeout(() => {
+                  if (cancelled) return;
+                  speak(res.translated, language.code)
+                    .then((audioRes) => {
+                      if (!cancelled) {
+                        setAudio((prev) => ({
+                          ...prev,
+                          [language.code]: { ...audioRes, text: res.translated },
+                        }));
+                      }
+                    })
+                    .catch((err) => {
+                      if (!cancelled) {
+                        setAudio((prev) => ({
+                          ...prev,
+                          [language.code]: { kind: "error", error: err.message },
+                        }));
+                      }
+                    });
+                }, ttsDelay);
               }
 
               return transObj;
@@ -198,26 +213,33 @@ export default function Result({
             })
           );
 
-          // Synthesize audio for sentence 0 immediately for instant playback
+          // Synthesize audio for sentence 0 immediately for instant playback:
+          // Order fast MMS models (~200ms) before Santali Parler-TTS (~5s) to avoid thread stalls
           if (sIdx === 0) {
-            await Promise.all(
-              picked.map(async (language) => {
-                let textToSpeak = sentText;
-                const mine = sentTranslations.find((t) => t.code === language.code);
-                if (mine?.translated && language.tts === "full" && !speaksWithoutPedagogy(language)) {
-                  textToSpeak = mine.translated;
-                }
-                try {
-                  const aRes = await speak(textToSpeak, language.code);
-                  sAudio[language.code] = { ...aRes, text: textToSpeak };
-                } catch (err) {
-                  sAudio[language.code] = { kind: "error", error: err.message };
-                }
-              })
+            const sortedLangs = [...picked].sort(
+              (a, b) => (a.code === "sat" ? 1 : 0) - (b.code === "sat" ? 1 : 0)
             );
-            if (!cancelled) {
-              setAudio(sAudio);
-              setTranslations(sentTranslations);
+            for (const language of sortedLangs) {
+              let textToSpeak = sentText;
+              const mine = sentTranslations.find((t) => t.code === language.code);
+              if (
+                mine?.translated &&
+                language.tts === "full" &&
+                !speaksWithoutPedagogy(language)
+              ) {
+                textToSpeak = mine.translated;
+              }
+              try {
+                const aRes = await speak(textToSpeak, language.code);
+                sAudio[language.code] = { ...aRes, text: textToSpeak };
+                if (!cancelled) {
+                  setAudio({ ...sAudio });
+                  setTranslations(sentTranslations);
+                }
+              } catch (err) {
+                sAudio[language.code] = { kind: "error", error: err.message };
+                if (!cancelled) setAudio({ ...sAudio });
+              }
             }
           }
 
@@ -229,17 +251,22 @@ export default function Result({
           };
         }
 
+        const sentencesToTranslate =
+          adaptedResult?.adapted_hindi?.length === sentenceList.length
+            ? adaptedResult.adapted_hindi
+            : sentenceList;
+
         // Step A: Immediately translate & render Sentence 1
-        const firstResult = await processSentence(sentenceList[0], 0);
+        const firstResult = await processSentence(sentencesToTranslate[0], 0);
         if (cancelled) return;
         accumulatedResults.push(firstResult);
         setChapterResults([...accumulatedResults]);
         setStage(sentenceList.length > 1 ? `Sentence 1 ready. Processing remaining chapter…` : "");
 
         // Step B: Progressively translate remaining sentences
-        for (let i = 1; i < sentenceList.length; i++) {
+        for (let i = 1; i < sentencesToTranslate.length; i++) {
           if (cancelled) break;
-          const result = await processSentence(sentenceList[i], i);
+          const result = await processSentence(sentencesToTranslate[i], i);
           if (cancelled) break;
           accumulatedResults.push(result);
           setChapterResults([...accumulatedResults]);
@@ -452,6 +479,26 @@ export default function Result({
     }
   }
 
+  async function handleRetryAudio(langCode, textToSpeak) {
+    if (!textToSpeak) return;
+    setAudio((prev) => ({
+      ...prev,
+      [langCode]: { kind: "loading" },
+    }));
+    try {
+      const res = await speak(textToSpeak, langCode);
+      setAudio((prev) => ({
+        ...prev,
+        [langCode]: { ...res, text: textToSpeak },
+      }));
+    } catch (err) {
+      setAudio((prev) => ({
+        ...prev,
+        [langCode]: { kind: "error", error: err.message },
+      }));
+    }
+  }
+
   return (
     <section aria-labelledby="result-heading" className="result-screen">
       <div className="section-eyebrow">
@@ -460,7 +507,7 @@ export default function Result({
       </div>
       <h1 id="result-heading" className="screen-title">A lesson, ready to be heard.</h1>
       <p className="screen-subtitle">
-        Check the wording and listen to the audio before presenting to your class.
+        Check the wording and listen to the audio before presenting to your class. Spoken voices are calibrated at a calm primary classroom pace (~86 WPM) with gentle acoustic warming.
       </p>
 
       {/* Export & Share Tools */}
@@ -852,13 +899,46 @@ export default function Result({
                 {mine.length > 0 && (
                   <>
                     <div className="hero-script-display">
-                      {mine.map((t, i) => (
-                        <div key={i}>
-                          <div className="target-script-large" lang={language.code}>
-                            {t.translated}
+                      {mine.map((t, i) => {
+                        const sentences = (t.translated || "")
+                          .split(/(?<=[।॥᱾!?])\s+/)
+                          .map((s) => s.trim())
+                          .filter(Boolean);
+
+                        return (
+                          <div key={i}>
+                            {sentences.length > 1 ? (
+                              <ol
+                                className="sentence-list"
+                                style={{
+                                  margin: 0,
+                                  paddingLeft: "1.25rem",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "0.5rem",
+                                }}
+                              >
+                                {sentences.map((sent, sIdx) => (
+                                  <li
+                                    key={sIdx}
+                                    className="target-script-large"
+                                    lang={language.code}
+                                  >
+                                    {sent}
+                                  </li>
+                                ))}
+                              </ol>
+                            ) : (
+                              <div
+                                className="target-script-large"
+                                lang={language.code}
+                              >
+                                {t.translated}
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                     <CorrectionForm
                       lang={language.code}
@@ -902,23 +982,41 @@ export default function Result({
                   <div
                     style={{
                       marginTop: "0.5rem",
-                      padding: "0.4rem 0.6rem",
+                      padding: "0.5rem 0.75rem",
                       background: "rgba(239, 68, 68, 0.08)",
                       borderRadius: "var(--radius-sm)",
+                      border: "1px solid rgba(239, 68, 68, 0.2)",
                       color: "var(--error)",
-                      fontSize: "0.8rem",
+                      fontSize: "0.85rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "0.5rem",
                     }}
                   >
                     <span>Speech synthesis error: {spoken.error}</span>
+                    <button
+                      type="button"
+                      className="button button--secondary"
+                      style={{ padding: "0.2rem 0.6rem", fontSize: "0.75rem", minHeight: "auto" }}
+                      onClick={() => {
+                        const targetText = mine[0]?.translated || hindiText;
+                        handleRetryAudio(language.code, targetText);
+                      }}
+                    >
+                      Retry audio
+                    </button>
                   </div>
                 )}
 
                 {spoken?.kind === "audio" && (
                   <>
                     <div className="hero-script-display">
-                      <span className="field-label" style={{ fontSize: "0.8rem" }}>
-                        {isBank ? "Spoken Phrase (Real Target Script):" : "Spoken Audio:"}
-                      </span>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
+                        <span className="field-label" style={{ fontSize: "0.8rem", margin: 0 }}>
+                          {isBank ? "Spoken Phrase (Real Target Script):" : "Spoken Audio:"}
+                        </span>
+                      </div>
                       {isBank && (
                         <div className="target-script-large" lang={language.code}>
                           {spoken.targetText || spoken.text}
@@ -967,9 +1065,7 @@ export default function Result({
                   </div>
                 )}
 
-                {spoken?.kind === "error" && (
-                  <p className="error">Could not generate audio. {spoken.error}</p>
-                )}
+
               </article>
             );
           })}

@@ -1387,7 +1387,7 @@ export default function Flashcards({ lessonText = "", currentGrade = 2 }) {
             label = "सभी शब्द (All 26 Cards)";
             count = FOUNDATION_CARDS.length;
           } else if (cat === "lesson") {
-            label = "✨ इस पाठ से संबंधित (In Lesson)";
+            label = "इस पाठ से संबंधित (In Lesson)";
             count = lessonMatchingCardIds.size;
           } else {
             count = FOUNDATION_CARDS.filter((c) => c.category === cat).length;

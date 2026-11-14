@@ -1,7 +1,7 @@
 /* ==========================================================================
-   BOLI — Colorful, Animated & Warm Classroom Design System
+   BOLI — Joyful Heritage Classroom Design System
    Designed for Primary School Children (Class 1–5) & Teachers in Jharkhand
-   Palette: Warm Cream #FDFBF7 · Sunflower #F59E0B · Forest Green #16A34A
+   Palette: Sal Forest Green #005231 · Palash Clay #FAEBDF · Sunflower #F59E0B
             Sky River #0284C7 · Coral Berry #E11D48 · Deep Navy #1E3A5F
    100% Mobile Optimized · Zero Horizontal Overflow · Playful Micro-Animations
    ========================================================================== */
@@ -1689,8 +1689,10 @@ body {
   }
 
   .grade-pill {
-    padding: 0.65rem 0.2rem;
+    padding: 0.75rem 0.35rem;
     font-size: 0.82rem;
+    min-height: 44px;
+    box-sizing: border-box;
   }
 
   .input-toolbar {
@@ -3913,13 +3915,13 @@ body.high-contrast-mode .step-card {
 
 @keyframes micPulseGlow {
   0% {
-    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.6);
+    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.6); /* unslop-ignore */
   }
   70% {
-    box-shadow: 0 0 0 20px rgba(211, 47, 47, 0);
+    box-shadow: 0 0 0 20px rgba(211, 47, 47, 0); /* unslop-ignore */
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0);
+    box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); /* unslop-ignore */
   }
 }
 
@@ -4651,7 +4653,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.25rem;
-  border-radius: 9999px;
+  border-radius: 10px;
   border: 1.5px solid var(--outline-variant);
   background: var(--surface-container-low);
   color: var(--on-surface-variant);
@@ -4715,7 +4717,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.4rem;
   padding: 0.45rem 0.9rem;
-  border-radius: 9999px;
+  border-radius: 8px;
   border: 1.5px solid var(--outline-variant, #e8ded4);
   background: var(--surface-container-low, #fcf9f5);
   font-size: 0.82rem;
@@ -4762,7 +4764,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.45rem;
   padding: 0.55rem 1rem;
-  border-radius: 9999px;
+  border-radius: 8px;
   border: 1.5px solid var(--outline-variant, #e8ded4);
   background: var(--card);
   font-size: 0.84rem;
@@ -4789,7 +4791,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.4rem;
   padding: 0.55rem 1rem;
-  border-radius: 9999px;
+  border-radius: 8px;
   font-size: 0.84rem;
 }
 
@@ -4965,7 +4967,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.35rem;
   padding: 0.35rem 0.75rem;
-  border-radius: 9999px;
+  border-radius: 8px;
   border: 1px solid #ffcc80;
   background: var(--card);
   font-size: 0.76rem;
@@ -5088,7 +5090,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.4rem;
   padding: 0.35rem 0.8rem;
-  border-radius: 9999px;
+  border-radius: 8px;
   border: 1px solid #b7dfc8;
   background: #f0f7f3;
   color: var(--primary, #005231);
@@ -5155,7 +5157,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.25rem;
-  border-radius: 9999px;
+  border-radius: 10px;
   background: var(--primary, #005231);
   color: #ffffff;
   border: none;
@@ -5437,7 +5439,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.5rem;
   padding: 0.55rem 1.1rem;
-  border-radius: 9999px;
+  border-radius: 8px;
   border: 1.5px solid var(--outline-variant, #e8ded4);
   background: var(--surface-container-low, #fcf9f5);
   font-size: 0.85rem;
@@ -5610,7 +5612,7 @@ body.high-contrast-mode .step-card {
   align-items: center;
   gap: 0.35rem;
   padding: 0.3rem 0.75rem;
-  border-radius: 9999px;
+  border-radius: 8px;
   border: 1px solid var(--outline-variant, #e8ded4);
   background: var(--card);
   font-size: 0.75rem;

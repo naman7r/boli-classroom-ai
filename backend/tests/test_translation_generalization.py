@@ -16,9 +16,17 @@ Also tests:
 """
 
 import itertools
+import os
 import random
+import sys
 import time
 from collections import defaultdict
+from pathlib import Path
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+if str(_BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_DIR))
+
 from dotenv import load_dotenv
 load_dotenv()
 

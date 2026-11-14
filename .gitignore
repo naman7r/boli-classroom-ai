@@ -37,6 +37,7 @@ frontend/dist-ssr/
 
 # Documents & Presentations
 *.pdf
+*.pptx
 research_dossier/
 presentation_assets/
 generate_deck.py
