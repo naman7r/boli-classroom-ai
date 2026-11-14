@@ -80,13 +80,6 @@ npm run dev
 
 ---
 
-## Technical Documentation & Architecture
-- **System Architecture & Dataflow:** [ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- **Product Requirements & Specifications:** [PRD.md](docs/PRD.md)
-- **Data Dictionary & Schema Specifications:** [DATA_DICTIONARY.md](docs/DATA_DICTIONARY.md)
-
----
-
 ## Product Truthfulness & Linguistic Bounds
 1. **Santali and Kurukh** use neural translation models evaluated on unseen test sets.
 2. **Ho, Mundari, and Sadri** use deterministic linguistic transfer engines that map regional pronouns, copulas, and verbal aspects. They are not labeled as neural translation.
