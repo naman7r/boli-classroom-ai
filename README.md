@@ -80,12 +80,9 @@ npm run dev
 
 ---
 
-## Judge & Evaluator Guide
-
-For SIH evaluators, jury panels, and technical reviewers:
-- **Comprehensive Viva & Technical Defense:** [VIVA_MANUAL_2026.md](docs/VIVA_MANUAL_2026.md) *(Covers the 22 hardest jury questions, North Munda syntax breakdown, and empirical benchmark data).*
+## Technical Documentation & Architecture
 - **System Architecture & Dataflow:** [ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- **Product Requirements & Non-Violable Truthfulness Rules:** [PRD.md](docs/PRD.md) & [RULES.md](docs/RULES.md)
+- **Product Requirements & Specifications:** [PRD.md](docs/PRD.md)
 - **Data Dictionary & Schema Specifications:** [DATA_DICTIONARY.md](docs/DATA_DICTIONARY.md)
 
 ---
